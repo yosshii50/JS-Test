@@ -1,0 +1,35 @@
+<html>
+<head>
+</head>
+<body>
+<script language="JavaScript">
+
+ima = new Date();
+
+document.write(ima);
+document.write("<br>");
+
+document.write(ima.toGMTString());
+document.write("<br>");
+
+document.write(ima.getFullYear());
+document.write("(");
+document.write(ima.getYear());
+document.write(")");
+document.write("-");
+document.write( ( '0' + ( ima.getMonth() + 1 ) ).slice(-2) );
+document.write("-");
+document.write( ( '0' + ima.getDate() ).slice(-2) );
+document.write(" ");
+document.write( ( '0' + ima.getHours() ).slice(-2) );
+document.write(":");
+document.write( ( '0' + ima.getMinutes() ).slice(-2) );
+document.write(":");
+document.write( ( '0' + ima.getSeconds() ).slice(-2) );
+document.write(".");
+document.write( ( '00' + (ima.getTime() % 1000) ).slice(-3) );
+document.write("<br>");
+
+</script>
+</body>
+</html>
