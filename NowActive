@@ -24,34 +24,49 @@ i:<span id="text-i">aa</span><br>
 
 <script language="JavaScript">
 
+var rect_canvasW = document.getElementById("rectangleW");
+
 onload = function() {
-    var rect_canvasW = document.getElementById("rectangleW");
     var rect_ctxW = rect_canvasW.getContext("2d");
     rect_ctxW.beginPath();
     rect_ctxW.strokeRect(0, 0, 300, 100);
     
     rect_canvasW.style.position = "absolute";
+    // rect_canvasW.style.top =  "300px";
     // document.getElementById("text-i").innerHTML = rect_canvasW.style.top;
     
     var rect_canvasB = document.getElementById("rectangleB");
     var rect_ctxB = rect_canvasB.getContext("2d");
     rect_ctxB.beginPath();
     rect_ctxB.strokeRect(0, 0, 100, 100);
+    rect_canvasB.style.position = "absolute";
 }
 
+
+document.getElementById("text-i").onclick = function() {
+    // var rect_canvasW = document.getElementById("rectangleW");
+    document.getElementById("text-i").innerHTML = rect_canvasW.style.top;
+};
+
+
 var kao001 = document.getElementById("rectangleB");
-kao001.style.position = "absolute";
+var xG=0;
+var yG=0;
 
 kao001.ondragstart = function(event){
     return false;
 }
 kao001.onmousedown = function(event){
+    xG = event.clientX;
+    yG = event.clientY;
     document.addEventListener("mousemove",OnMouseMove);
 }
 kao001.onmouseup = function(event){
     document.removeEventListener("mousemove",OnMouseMove);
 }
 kao001.onpointerdown = function(event){
+    xG = event.clientX;
+    yG = event.clientY;
     document.addEventListener("pointermove",OnMouseMove);
 }
 kao001.onpointerup = function(event){
@@ -63,8 +78,10 @@ var OnMouseMove = function(event){
   var y = event.clientY;
   var width = kao001.offsetWidth;
   var height = kao001.offsetHeight;
-  kao001.style.top = (y-height/2) + "px";
-  kao001.style.left = (x-width/2) + "px";
+  // kao001.style.top = (y-height/2) + "px";
+  // kao001.style.left = (x-width/2) + "px";
+  kao001.style.top = (y-yG) + "px";
+  kao001.style.left = (x-xG) + "px";
   document.getElementById("text-X").innerHTML = kao001.style.left;
   document.getElementById("text-Y").innerHTML = kao001.style.top;
 }
