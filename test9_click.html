@@ -32,6 +32,16 @@ kao001.ondragstart = function(event){
 kao001.onmousedown = function(event){
     document.addEventListener("mousemove",onMouseMove);
 }
+kao001.onmouseup = function(event){
+    document.removeEventListener("mousemove",onMouseMove);
+}
+
+kao001.onpointerdown = function(event){
+    document.addEventListener("pointermove",OnMouseMove);
+}
+kao001.onpointerup = function(event){
+    document.removeEventListener("pointermove",OnMouseMove);
+}
 
 var onMouseMove = function(event){
   var x = event.clientX;
@@ -40,10 +50,6 @@ var onMouseMove = function(event){
   var height = kao001.offsetHeight;
   kao001.style.top = (y-height/2) + "px";
   kao001.style.left = (x-width/2) + "px";
-}
-
-kao001.onmouseup = function(event){
-    document.removeEventListener("mousemove",onMouseMove);
 }
 
 </script>
