@@ -8,7 +8,8 @@
 <div id="text-div1"><p id="text-p1">a</p></div>
 <div id="text-div">b</div>
 <p id="text-p">c</p>
-
+E<span id="text-span">d</span>E
+    
 <script language="JavaScript">
 
 document.getElementById("text-div1").onclick = function() {
@@ -21,6 +22,10 @@ document.getElementById("text-div").onclick = function() {
 
 document.getElementById("text-p").onclick = function() {
     document.getElementById("text-p").innerHTML += "c";
+};
+
+document.getElementById("text-span").onclick = function() {
+    document.getElementById("text-span").innerHTML += "d";
 };
 
 </script>
