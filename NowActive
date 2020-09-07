@@ -1,0 +1,76 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Test9_Move</title>
+</head>
+<body>
+
+X:<span id="text-X">0</span><br>
+Y:<span id="text-Y">0</span><br>
+<br>
+i:<span id="text-i">aa</span><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div id="app">
+<canvas id="rectangleW" width="300" height="100"></canvas>
+<canvas id="rectangleB" width="100" height="100"></canvas>
+</div>
+
+
+
+<script language="JavaScript">
+
+onload = function() {
+    var rect_canvasW = document.getElementById("rectangleW");
+    var rect_ctxW = rect_canvasW.getContext("2d");
+    rect_ctxW.beginPath();
+    rect_ctxW.strokeRect(0, 0, 300, 100);
+    
+    rect_canvasW.style.position = "absolute";
+    // document.getElementById("text-i").innerHTML = rect_canvasW.style.top;
+    
+    var rect_canvasB = document.getElementById("rectangleB");
+    var rect_ctxB = rect_canvasB.getContext("2d");
+    rect_ctxB.beginPath();
+    rect_ctxB.strokeRect(0, 0, 100, 100);
+}
+
+var kao001 = document.getElementById("rectangleB");
+kao001.style.position = "absolute";
+
+kao001.ondragstart = function(event){
+    return false;
+}
+kao001.onmousedown = function(event){
+    document.addEventListener("mousemove",OnMouseMove);
+}
+kao001.onmouseup = function(event){
+    document.removeEventListener("mousemove",OnMouseMove);
+}
+kao001.onpointerdown = function(event){
+    document.addEventListener("pointermove",OnMouseMove);
+}
+kao001.onpointerup = function(event){
+    document.removeEventListener("pointermove",OnMouseMove);
+}
+
+var OnMouseMove = function(event){
+  var x = event.clientX;
+  var y = event.clientY;
+  var width = kao001.offsetWidth;
+  var height = kao001.offsetHeight;
+  kao001.style.top = (y-height/2) + "px";
+  kao001.style.left = (x-width/2) + "px";
+  document.getElementById("text-X").innerHTML = kao001.style.left;
+  document.getElementById("text-Y").innerHTML = kao001.style.top;
+}
+
+
+</script>
+
+</body>
+</html>
