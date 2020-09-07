@@ -1,0 +1,29 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Test10_TextChg</title>
+</head>
+<body>
+
+<div id="text-div1"><p id="text-p1">a</p></div>
+<div id="text-div">b</div>
+<p id="text-p">c</p>
+
+<script language="JavaScript">
+
+document.getElementById("text-div1").onclick = function() {
+    document.getElementById("text-p1").innerHTML += "a";
+};
+
+document.getElementById("text-div").onclick = function() {
+    document.getElementById("text-div").innerHTML += "b";
+};
+
+document.getElementById("text-p").onclick = function() {
+    document.getElementById("text-p").innerHTML += "c";
+};
+
+</script>
+
+</body>
+</html>
