@@ -14,11 +14,15 @@ Box_PosX:<span id="Box_PosX"></span><br>
 Mouse_Offset:<span id="Mouse_Offset"></span><br>
 Mouse_Button:<span id="Mouse_Button"></span><br>
 onmousedown_event_clientX:<span id="onmousedown_event_clientX"></span><br>
+Wak_BWidth:<span id="Wak_BWidth"></span><br>
 <br>
 <br>
 
 <div id="app">
-<canvas id="Wak_CanvasID" width="300" height="100"></canvas>
+Min:120
+<canvas id="Wak_CanvasID" width="400" height="100"></canvas>
+Value:<span id="Box_Val"></span>
+Max:480
 <canvas id="Box_CanvasID" width="100" height="100"></canvas>
 </div>
 
@@ -28,36 +32,30 @@ onmousedown_event_clientX:<span id="onmousedown_event_clientX"></span><br>
 var Wak_Element = document.getElementById("Wak_CanvasID");
 var Box_Element = document.getElementById("Box_CanvasID");
 var Box_PosX=0;
+var Box_Value=0;
 var Mouse_Offset=0;
 
 onload = function() {
 	
 	// Waku
-	var Waku_Context = Wak_Element.getContext("2d");
-//	Waku_Context.beginPath();
-	Waku_Context.strokeRect(0, 0, 300, 100);
-	
-	Wak_Element.style.position = "absolute";
-	
-	document.getElementById("Wak_StartPos").innerHTML = Wak_Element.getBoundingClientRect().left;
-	document.getElementById("Wak_Width").innerHTML = Wak_Element.getBoundingClientRect().width;
+	var Wak_Context = Wak_Element.getContext("2d");
+	Wak_Context.strokeRect(0, 0, Wak_Element.getBoundingClientRect().width, Wak_Element.getBoundingClientRect().height);
 	
 	// Box
-	var Box_Context = Box_Element.getContext("2d");
-//	Box_Context.beginPath();
-	Box_Context.strokeRect(0, 0, 100, 100);
-	Box_Context.fillStyle = "rgb(127, 127, 127)";
-	Box_Context.fillRect(0, 0, 100, 100);
-//	Box_Context.strokeStyle = 'red';
-//	Box_Context.fill();
-//	Box_Context.stroke();
 	Box_Element.style.position = "absolute";
+	Box_Element.style.top = Wak_Element.getBoundingClientRect().top + "px";
+	Box_Element.style.left = Wak_Element.getBoundingClientRect().left + "px";
+	
+	var Box_Context = Box_Element.getContext("2d");
+	Box_Context.fillStyle = "rgb(127, 127, 127)";
+	Box_Context.fillRect(0, 0, Box_Element.getBoundingClientRect().width, Box_Element.getBoundingClientRect().height);
 	Box_PosX = Box_Element.getBoundingClientRect().left;
 	
 	document.getElementById("Box_PosX").innerHTML = Box_PosX;
 	document.getElementById("Box_StartPos").innerHTML = Box_Element.getBoundingClientRect().left;
 	document.getElementById("Box_Width").innerHTML = Box_Element.getBoundingClientRect().width;
 	
+	SetValue();
 }
 
 document.getElementById("Box_PosX").onclick = function() {
@@ -86,38 +84,42 @@ function MouseDownEve(event,EventName){
 }
 
 Box_Element.onmouseup = function(event){
-	MouseDownEve("mousemove");
+	MouseUpEve("mousemove");
 }
 Box_Element.onpointerup = function(event){
-	MouseDownEve("pointermove");
+	MouseUpEve("pointermove");
 }
 function MouseUpEve(EventName){
-	document.removeEventListener("pointermove",OnMouseMove);
+	document.removeEventListener(EventName,OnMouseMove);
 }
 
-
-
-
+function SetValue(){
+	
+	
+	
+	
+	
+	
+	document.getElementById("Box_Val").innerHTML = Box_Value;
+}
 
 var OnMouseMove = function(event){
 	
 	
 	
 	if(event.buttons !== undefined){
-	
 		
 		var button_l = ((event.buttons & 0x0001) ? true : false);
 		
 		document.getElementById("Mouse_Button").innerHTML = button_l;
 		
 		if( ((event.buttons & 0x0001) ? true : false) == false ){
+			MouseUpEve("mousemove");
+			MouseUpEve("pointermove");
 			return;
 		}
 		
 	}
-	
-	
-	
 	
 	Box_PosX = event.clientX;
 	
