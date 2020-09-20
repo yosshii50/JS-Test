@@ -1,12 +1,12 @@
 <html>
 <meta http-equiv="content-type" charset="utf-8">
 <head>
-<title>Test9_Move</title>
+<title>Test11_ScrollBar</title>
 </head>
 <body>
 
-Waku_StartPos:<span id="Waku_StartPos"></span><br>
-Waku_Width:<span id="Waku_Width"></span><br>
+Wak_StartPos:<span id="Wak_StartPos"></span><br>
+Wak_Width:<span id="Wak_Width"></span><br>
 Box_StartPos:<span id="Box_StartPos"></span><br>
 Box_Width:<span id="Box_Width"></span><br>
 Box_LeftPos:<span id="Box_LeftPos"></span><br>
@@ -18,14 +18,14 @@ onmousedown_event_clientX:<span id="onmousedown_event_clientX"></span><br>
 <br>
 
 <div id="app">
-<canvas id="Waku_CanvasID" width="300" height="100"></canvas>
+<canvas id="Wak_CanvasID" width="300" height="100"></canvas>
 <canvas id="Box_CanvasID" width="100" height="100"></canvas>
 </div>
 
 <script language="JavaScript">
 //=========================================================================================================================
 
-var Wak_Element = document.getElementById("Waku_CanvasID");
+var Wak_Element = document.getElementById("Wak_CanvasID");
 var Box_Element = document.getElementById("Box_CanvasID");
 var Box_PosX=0;
 var Mouse_Offset=0;
@@ -34,18 +34,23 @@ onload = function() {
 	
 	// Waku
 	var Waku_Context = Wak_Element.getContext("2d");
-	Waku_Context.beginPath();
+//	Waku_Context.beginPath();
 	Waku_Context.strokeRect(0, 0, 300, 100);
 	
 	Wak_Element.style.position = "absolute";
 	
-	document.getElementById("Waku_StartPos").innerHTML = Wak_Element.getBoundingClientRect().left;
-	document.getElementById("Waku_Width").innerHTML = Wak_Element.getBoundingClientRect().width;
+	document.getElementById("Wak_StartPos").innerHTML = Wak_Element.getBoundingClientRect().left;
+	document.getElementById("Wak_Width").innerHTML = Wak_Element.getBoundingClientRect().width;
 	
 	// Box
 	var Box_Context = Box_Element.getContext("2d");
-	Box_Context.beginPath();
+//	Box_Context.beginPath();
 	Box_Context.strokeRect(0, 0, 100, 100);
+	Box_Context.fillStyle = "rgb(127, 127, 127)";
+	Box_Context.fillRect(0, 0, 100, 100);
+//	Box_Context.strokeStyle = 'red';
+//	Box_Context.fill();
+//	Box_Context.stroke();
 	Box_Element.style.position = "absolute";
 	Box_PosX = Box_Element.getBoundingClientRect().left;
 	
