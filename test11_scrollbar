@@ -19,12 +19,19 @@ Wak_BWidth:<span id="Wak_BWidth"></span><br>
 <br>
 
 <div id="app">
-Min:120
+Min:<span id="Box_Min">-120</span>
 <canvas id="Wak_CanvasID" width="400" height="100"></canvas>
 Value:<span id="Box_Val"></span>
-Max:480
+Max:<span id="Box_Max">480</span>
 <canvas id="Box_CanvasID" width="100" height="100"></canvas>
 </div>
+
+SetValue_SbMin:<span id="SetValue_SbMin"></span><br>
+SetValue_SbMax:<span id="SetValue_SbMax"></span><br>
+SetValue_SbPos:<span id="SetValue_SbPos"></span><br>
+SetValue_SbPct:<span id="SetValue_SbPct"></span><br>
+SetValue_VlMin:<span id="SetValue_VlMin"></span><br>
+SetValue_VlMax:<span id="SetValue_VlMax"></span><br>
 
 <script language="JavaScript">
 //=========================================================================================================================
@@ -35,41 +42,42 @@ var Box_PosX=0;
 var Box_Value=0;
 var Mouse_Offset=0;
 
-onload = function() {
+window.onload = (event) => {
 	
 	// Waku
 	var Wak_Context = Wak_Element.getContext("2d");
-	Wak_Context.strokeRect(0, 0, Wak_Element.getBoundingClientRect().width, Wak_Element.getBoundingClientRect().height);
+	Wak_Context.strokeRect(0, 0, Wak_Element.getBoundingClientRect().width
+	                           , Wak_Element.getBoundingClientRect().height);
 	
 	// Box
 	Box_Element.style.position = "absolute";
-	Box_Element.style.top = Wak_Element.getBoundingClientRect().top + "px";
+	Box_Element.style.top  = Wak_Element.getBoundingClientRect().top  + "px";
 	Box_Element.style.left = Wak_Element.getBoundingClientRect().left + "px";
 	
 	var Box_Context = Box_Element.getContext("2d");
 	Box_Context.fillStyle = "rgb(127, 127, 127)";
-	Box_Context.fillRect(0, 0, Box_Element.getBoundingClientRect().width, Box_Element.getBoundingClientRect().height);
+	Box_Context.fillRect(0, 0, Box_Element.getBoundingClientRect().width
+	                         , Box_Element.getBoundingClientRect().height);
 	Box_PosX = Box_Element.getBoundingClientRect().left;
 	
+	SetValue();
+	
+	// DebugOut
 	document.getElementById("Box_PosX").innerHTML = Box_PosX;
 	document.getElementById("Box_StartPos").innerHTML = Box_Element.getBoundingClientRect().left;
 	document.getElementById("Box_Width").innerHTML = Box_Element.getBoundingClientRect().width;
-	
-	SetValue();
 }
 
-document.getElementById("Box_PosX").onclick = function() {
+// Debug
+document.getElementById("Box_PosX").onclick = (event) => {
 	document.getElementById("Box_PosX").innerHTML = Box_PosX;
 };
 
-Box_Element.ondragstart = function(event){
-	return false;
-}
-
-Box_Element.onmousedown = function(event){
+// MouseDownEvent
+Box_Element.onmousedown = (event) => {
 	MouseDownEve(event,"mousemove");
 }
-Box_Element.onpointerdown = function(event){
+Box_Element.onpointerdown = (event) => {
 	MouseDownEve(event,"pointermove");
 }
 function MouseDownEve(event,EventName){
@@ -83,37 +91,26 @@ function MouseDownEve(event,EventName){
 	document.addEventListener(EventName,OnMouseMove);
 }
 
-Box_Element.onmouseup = function(event){
+// MouseUpEvent
+Box_Element.onmouseup = (event) => {
 	MouseUpEve("mousemove");
 }
-Box_Element.onpointerup = function(event){
+Box_Element.onpointerup = (event) => {
 	MouseUpEve("pointermove");
 }
 function MouseUpEve(EventName){
 	document.removeEventListener(EventName,OnMouseMove);
 }
 
-function SetValue(){
-	
-	
-	
-	
-	
-	
-	document.getElementById("Box_Val").innerHTML = Box_Value;
-}
-
-var OnMouseMove = function(event){
-	
-	
+// MouseMove
+var OnMouseMove = (event) => {
 	
 	if(event.buttons !== undefined){
 		
-		var button_l = ((event.buttons & 0x0001) ? true : false);
+		// DebugOut
+		document.getElementById("Mouse_Button").innerHTML = event.buttons & 1;
 		
-		document.getElementById("Mouse_Button").innerHTML = button_l;
-		
-		if( ((event.buttons & 0x0001) ? true : false) == false ){
+		if( (event.buttons & 1) != 1 ){
 			MouseUpEve("mousemove");
 			MouseUpEve("pointermove");
 			return;
@@ -121,33 +118,57 @@ var OnMouseMove = function(event){
 		
 	}
 	
-	Box_PosX = event.clientX;
+	Box_PosX = event.clientX - Mouse_Offset;
 	
-	Box_PosX = Box_PosX - Mouse_Offset;
-	
-	// Left Max
-	if( Box_PosX < Wak_Element.getBoundingClientRect().left ){
-		Box_PosX = Wak_Element.getBoundingClientRect().left;
+	// Left MaxLimit
+	var LMax = Wak_Element.getBoundingClientRect().left;
+	if( Box_PosX < LMax ){
+		Box_PosX = LMax;
 	}
 	
-	// Right Max
-	if( Box_PosX > Wak_Element.getBoundingClientRect().width
-	             - Box_Element.getBoundingClientRect().width
-	             + Wak_Element.getBoundingClientRect().left ){
-		Box_PosX = Wak_Element.getBoundingClientRect().width
-		         - Box_Element.getBoundingClientRect().width
-		         + Wak_Element.getBoundingClientRect().left;
+	// Right MaxLimit
+	var RMax = Wak_Element.getBoundingClientRect().width
+	         - Box_Element.getBoundingClientRect().width
+	         + Wak_Element.getBoundingClientRect().left;
+	if( Box_PosX > RMax ){
+		Box_PosX = RMax;
 	}
 	
 	Box_Element.style.left = Box_PosX + "px";
 	
+	SetValue();
+	
+	// DebugOut
 	document.getElementById("Box_LeftPos").innerHTML = Box_Element.style.left;
 	document.getElementById("Box_PosX").innerHTML = Box_PosX;
 }
 
+function SetValue(){
+	
+	var SbMin = Wak_Element.getBoundingClientRect().left;
+	var SbMax = Wak_Element.getBoundingClientRect().width
+	          - Box_Element.getBoundingClientRect().width
+	          + Wak_Element.getBoundingClientRect().left;
+	var SbPos = Box_PosX;
+	
+	var SbPct = ( SbPos - SbMin ) / ( SbMax - SbMin );
+	
+	var VlMin = Number(document.getElementById("Box_Min").innerHTML);
+	var VlMax = Number(document.getElementById("Box_Max").innerHTML);
+	
+	var Box_Value = SbPct * ( VlMax - VlMin ) + VlMin;
+	
+	// DebugOut
+	document.getElementById("SetValue_SbMin").innerHTML = SbMin;
+	document.getElementById("SetValue_SbMax").innerHTML = SbMax;
+	document.getElementById("SetValue_SbPos").innerHTML = SbPos;
+	document.getElementById("SetValue_SbPct").innerHTML = SbPct;
+	document.getElementById("SetValue_VlMin").innerHTML = VlMin;
+	document.getElementById("SetValue_VlMax").innerHTML = VlMax;
+	document.getElementById("Box_Val").innerHTML = parseInt(Box_Value);
+}
+
 </script>
-
-
 
 </body>
 </html>
