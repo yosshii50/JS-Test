@@ -1,0 +1,31 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Class</title>
+</head>
+<body>
+
+<script language="JavaScript">
+	
+	class Person
+	{
+		constructor(name)
+		{
+			this.name = name;
+		}
+		say()
+		{
+			document.write( "aaa" + this.name + "<br>" );
+		}
+	}
+	
+	var soseki = new Person("1");
+	soseki.say();
+	
+	var osamu = new Person("2");
+	osamu.say();	
+	
+</script>
+
+</body>
+</html>
