@@ -1,0 +1,54 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Calendar</title>
+</head>
+<body>
+
+<script language="JavaScript">
+	
+	
+	class HogeHoge
+	{
+		MsgOut( MsgStr )
+		{
+			document.write( '<canvas id="Wak_CanvasID' + MsgStr + '" width="50" height="50"></canvas>' );
+			
+			var Wak_Element = document.getElementById('Wak_CanvasID' + MsgStr);
+			var Wak_Context = Wak_Element.getContext('2d');
+			Wak_Context.strokeRect(0, 0, Wak_Element.getBoundingClientRect().width
+			                           , Wak_Element.getBoundingClientRect().height);
+			
+			Wak_Context.font = "20px serif";
+			Wak_Context.fillText( MsgStr , 0, 20);
+			
+			Wak_Element.addEventListener( 'mouseover' , function (event) {
+				event.target.style.backgroundColor = 'rgb(127, 255, 127)';
+			} , false );
+			
+			Wak_Element.addEventListener( 'mouseout'  , function (event) {
+				
+				setTimeout( function () { event.target.style.backgroundColor = 'rgb(153, 255, 153)'; } , 100);
+				setTimeout( function () { event.target.style.backgroundColor = 'rgb(178, 255, 178)'; } , 200);
+				setTimeout( function () { event.target.style.backgroundColor = 'rgb(204, 255, 204)'; } , 300);
+				setTimeout( function () { event.target.style.backgroundColor = 'rgb(229, 255, 229)'; } , 400);
+				setTimeout( function () { event.target.style.backgroundColor = 'rgb(255, 255, 255)'; } , 500);
+				
+			} , false );
+			
+		}
+	}
+	
+	var HogeObj = [];
+	for( Idx = 0; Idx <= 10 ; Idx++ )
+	{
+		
+		HogeObj.push( new HogeHoge() );
+		HogeObj[HogeObj.length - 1].MsgOut( Idx );
+		
+	}
+	
+</script>
+
+</body>
+</html>
