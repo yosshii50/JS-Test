@@ -7,23 +7,19 @@
 
 <script language="JavaScript">
 	
-	class Person
+	class HogeHoge
 	{
-		constructor(name)
+		MsgOut( MsgStr )
 		{
-			this.name = name;
-		}
-		say()
-		{
-			document.write( "aaa" + this.name + "<br>" );
+			document.write( "Ho " + MsgStr + "<br>" );
 		}
 	}
 	
-	var soseki = new Person("1");
-	soseki.say();
+	var HogeObj1 = new HogeHoge();
+	HogeObj1.MsgOut("A");
 	
-	var osamu = new Person("2");
-	osamu.say();	
+	var HogeObj2 = new HogeHoge();
+	HogeObj2.MsgOut("B");	
 	
 </script>
 
