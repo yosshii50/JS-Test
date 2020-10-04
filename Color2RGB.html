@@ -1,0 +1,78 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Color2RGB</title>
+</head>
+<body>
+
+<input type="text" id="InputStrID" value="red"><input type="button" value="変換" onclick="SampleExec()"/><br>
+SrcColorStr:<span id="SrcColorStrID"></span><br>
+<canvas id="SrcCanvasID" width="50" height="50"></canvas><br>
+<br>
+DstColorStr:<span id="DstColorStrID"></span><br>
+<canvas id="DstCanvasID" width="50" height="50"></canvas><br>
+<br>
+<canvas id="Wrk_Color2RGB_CanvasID" width="1" height="1" style="display:none;"></canvas><br>
+
+<script language="JavaScript">
+
+// 実行サンプル
+function SampleExec( ){
+	
+	// 入力された文字列取得
+	var InputColorStr = document.getElementById("InputStrID").value;
+	
+	// 変換元情報を表示
+	document.getElementById("SrcColorStrID").innerHTML = InputColorStr;
+	var SrcCanvasElement = document.getElementById("SrcCanvasID");
+	var SrcCanvasContext = SrcCanvasElement.getContext("2d");
+	SrcCanvasContext.fillStyle = InputColorStr;
+	SrcCanvasContext.fillRect( 0, 0
+	        , SrcCanvasElement.getBoundingClientRect().width
+	        , SrcCanvasElement.getBoundingClientRect().height );
+	
+	// 色情報文字列 から RGB文字列('#FFFFFF')に変換
+	var GetColorRGB = Color2RGB( InputColorStr , 'Wrk_Color2RGB_CanvasID' );
+	
+	// 変換先情報を表示
+	document.getElementById("DstColorStrID").innerHTML = GetColorRGB;
+	var DstCanvasElement = document.getElementById("DstCanvasID");
+	var DstCanvasContext = DstCanvasElement.getContext("2d");
+	DstCanvasContext.fillStyle = GetColorRGB;
+	DstCanvasContext.fillRect( 0, 0
+	        , DstCanvasElement.getBoundingClientRect().width
+	        , DstCanvasElement.getBoundingClientRect().height );
+	
+}
+
+// 色情報文字列 から RGB文字列('#FFFFFF')に変換
+function Color2RGB( ColorStr , CanvasID ){
+	
+	// 作業用CanvasIDのElementとContext取得
+	var Canvas_Element = document.getElementById( CanvasID );
+	var Canvas_Context = Canvas_Element.getContext("2d");
+	
+	// 一度中身を消しておく
+	Canvas_Context.fillStyle = 'black';
+	Canvas_Context.fillRect( 0 , 0 , 1 , 1 );
+	
+	// １ピクセル描画
+	Canvas_Context.fillStyle = ColorStr;
+	Canvas_Context.fillRect( 0 , 0 , 1 , 1 );
+	
+	// 描画した１ピクセル取得
+	// getImageData.data から RGB文字列('#FFFFFF')に変換
+	return ColorPx2RGB( Canvas_Context.getImageData(0, 0, 1, 1).data );
+}
+
+// getImageData.data から RGB文字列('#FFFFFF')に変換
+function ColorPx2RGB( ImageData_Data ){
+	return '#' + (('0' + ImageData_Data[0].toString(16).toUpperCase()).substr(-2))
+	           + (('0' + ImageData_Data[1].toString(16).toUpperCase()).substr(-2))
+	           + (('0' + ImageData_Data[2].toString(16).toUpperCase()).substr(-2));
+}
+
+</script>
+
+</body>
+</html>
