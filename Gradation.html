@@ -1,0 +1,81 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Gradation</title>
+</head>
+<body>
+
+From Color <input type="text" id="InputFrID" value="red" ><br>
+To Color   <input type="text" id="InputToID" value="blue"><br>
+<input type="button" value="実行" onclick="SampleExec()"/><br>
+
+From Color [<span id="FrColorStrID"></span>]<br>
+To Color   [<span id="ToColorStrID"></span>]<br>
+
+<canvas id="Gr0CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr1CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr2CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr3CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr4CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr5CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr6CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr7CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr8CanvasID" width="50" height="50"></canvas>
+<canvas id="Gr9CanvasID" width="50" height="50"></canvas>
+
+<canvas id="Wrk_Color2RGB_CanvasID" width="1" height="1" style="display:none;"></canvas><br>
+
+<script language="JavaScript">
+
+// 実行サンプル
+function SampleExec( ){
+	
+	// 入力された文字列取得
+	var InputFrColor = document.getElementById("InputFrID").value;
+	var InputToColor = document.getElementById("InputToID").value;
+	
+	// 元情報を表示
+	document.getElementById("FrColorStrID").innerHTML = InputFrColor;
+	document.getElementById("ToColorStrID").innerHTML = InputToColor;
+	
+	// 表示
+	CanvasFillBox( InputFrColor , "Gr0CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (1/9) ) , "Gr1CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (2/9) ) , "Gr2CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (3/9) ) , "Gr3CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (4/9) ) , "Gr4CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (5/9) ) , "Gr5CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (6/9) ) , "Gr6CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (7/9) ) , "Gr7CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (8/9) ) , "Gr8CanvasID" );
+	CanvasFillBox( InputToColor , "Gr9CanvasID" );
+	
+}
+
+function GetProgressColor( FrColor , ToColor , Percent ){
+	
+	// Color = '#xxxxxx' TypeOnly
+	
+	
+	
+	
+	
+	return FrColor;
+}
+
+function CanvasFillBox( ColorStr , CanvasID ){
+	
+	// 塗りつぶし
+	var CanvasElement = document.getElementById( CanvasID );
+	var CanvasContext = CanvasElement.getContext('2d');
+	CanvasContext.fillStyle = ColorStr;
+	CanvasContext.fillRect( 0, 0
+	        , CanvasElement.getBoundingClientRect().width
+	        , CanvasElement.getBoundingClientRect().height );
+	
+}
+
+</script>
+
+</body>
+</html>
