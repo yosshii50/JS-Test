@@ -9,8 +9,8 @@ From Color <input type="text" id="InputFrID" value="red" ><br>
 To Color   <input type="text" id="InputToID" value="blue"><br>
 <input type="button" value="実行" onclick="SampleExec()"/><br>
 
-From Color [<span id="FrColorStrID"></span>]<br>
-To Color   [<span id="ToColorStrID"></span>]<br>
+From Color [<span id="FrColorStrID"></span>]→[<span id="FrColorRGBID"></span>]<br>
+To Color   [<span id="ToColorStrID"></span>]→[<span id="ToColorRGBID"></span>]<br>
 
 <canvas id="Gr0CanvasID" width="50" height="50"></canvas>
 <canvas id="Gr1CanvasID" width="50" height="50"></canvas>
@@ -25,43 +25,90 @@ To Color   [<span id="ToColorStrID"></span>]<br>
 
 <canvas id="Wrk_Color2RGB_CanvasID" width="1" height="1" style="display:none;"></canvas><br>
 
+<script language="JavaScript" src="ColorControl_Cls.js"></script>
+
 <script language="JavaScript">
 
 // 実行サンプル
 function SampleExec( ){
 	
+	var ColorControl = new ColorControl_Cls();
+	
 	// 入力された文字列取得
-	var InputFrColor = document.getElementById("InputFrID").value;
-	var InputToColor = document.getElementById("InputToID").value;
+	var InputFrColorStr = document.getElementById("InputFrID").value;
+	var InputToColorStr = document.getElementById("InputToID").value;
+	
+	// 入力された文字列取得
+	var InputFrColorRGB = ColorControl.Color2RGB( InputFrColorStr , 'Wrk_Color2RGB_CanvasID' );
+	var InputToColorRGB = ColorControl.Color2RGB( InputToColorStr , 'Wrk_Color2RGB_CanvasID' );
 	
 	// 元情報を表示
-	document.getElementById("FrColorStrID").innerHTML = InputFrColor;
-	document.getElementById("ToColorStrID").innerHTML = InputToColor;
+	document.getElementById("FrColorStrID").innerHTML = InputFrColorStr;
+	document.getElementById("FrColorRGBID").innerHTML = InputFrColorRGB;
+	document.getElementById("ToColorStrID").innerHTML = InputToColorStr;
+	document.getElementById("ToColorRGBID").innerHTML = InputToColorRGB;
 	
 	// 表示
-	CanvasFillBox( InputFrColor , "Gr0CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (1/9) ) , "Gr1CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (2/9) ) , "Gr2CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (3/9) ) , "Gr3CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (4/9) ) , "Gr4CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (5/9) ) , "Gr5CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (6/9) ) , "Gr6CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (7/9) ) , "Gr7CanvasID" );
-	CanvasFillBox( GetProgressColor( InputFrColor , InputToColor , (8/9) ) , "Gr8CanvasID" );
-	CanvasFillBox( InputToColor , "Gr9CanvasID" );
+	CanvasFillBox( InputFrColorRGB , "Gr0CanvasID" );
+	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (1/9) ) , "Gr1CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (2/9) ) , "Gr2CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (3/9) ) , "Gr3CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (4/9) ) , "Gr4CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (5/9) ) , "Gr5CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (6/9) ) , "Gr6CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (7/9) ) , "Gr7CanvasID" );
+//	CanvasFillBox( GetProgressColor( InputFrColorRGB , InputToColorRGB , (8/9) ) , "Gr8CanvasID" );
+	CanvasFillBox( InputToColorRGB , "Gr9CanvasID" );
 	
+}
+
+class ColorRGB_Cls
+{
+	constructor( FrColor , ToColor )
+	{
+		this.FrColor = FrColor;
+		this.FrHexR = FrColor.substring(1,3);
+		this.FrHexF = FrColor.substring(3,5);
+		this.FrHexB = FrColor.substring(5,7);
+		this.ToColor = ToColor;
+		this.ToHexR = ToColor.substring(1,3);
+		this.ToHexF = ToColor.substring(3,5);
+		this.ToHexB = ToColor.substring(5,7);
+	}
 }
 
 function GetProgressColor( FrColor , ToColor , Percent ){
 	
-	// Color = '#xxxxxx' TypeOnly
+	// Color = '#xxxxxx'
 	
+//	var ColorRGB = ColorRGB2RGB( FrColor );
+	var ColorRGB = new ColorRGB_Cls( FrColor , ToColor );
 	
+	document.getElementById("Debug01").innerHTML = ColorRGB.ColorHexR;
+	document.getElementById("Debug02").innerHTML = ColorRGB.ColorHexG;
+	document.getElementById("Debug03").innerHTML = ColorRGB.ColorHexB;
 	
+//	document.getElementById("Debug01").innerHTML = FrColor;
+//	document.getElementById("Debug02").innerHTML = ToColor;
+//	document.getElementById("Debug03").innerHTML = Percent;
 	
 	
 	return FrColor;
 }
+
+// // [#xxxxxx]をRGB毎に分割
+// function ColorRGB2RGB( TgColor ){
+// 	
+// 	var ColorRGB = new ColorRGB_Cls();
+// 	
+// 	ColorRGB.ColorStrRGB = TgColor;
+// 	
+// 	ColorRGB.ColorHexR = TgColor.substring(1,3);
+// 	ColorRGB.ColorHexG = TgColor.substring(3,5);
+// 	ColorRGB.ColorHexB = TgColor.substring(5,7);
+// 	
+// 	return ColorRGB;
+// }
 
 function CanvasFillBox( ColorStr , CanvasID ){
 	
@@ -76,6 +123,11 @@ function CanvasFillBox( ColorStr , CanvasID ){
 }
 
 </script>
+
+<span id="Debug01"></span><br>
+<span id="Debug02"></span><br>
+<span id="Debug03"></span><br>
+
 
 </body>
 </html>
