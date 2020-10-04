@@ -7,8 +7,10 @@
 
 <script language="JavaScript">
 	
+	// [()] 不要
 	class HogeHoge
 	{
+		// [function] 不要
 		MsgOut( MsgStr )
 		{
 			document.write( "Ho " + MsgStr + "<br>" );
