@@ -1,0 +1,61 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>GradationMerge</title>
+</head>
+<body>
+
+<canvas width="256" height="256" id="Blue"></canvas>
+<canvas width="256" height="256" id="Red"></canvas>
+<canvas width="256" height="256" id="Merge"></canvas>
+
+<script type="text/javascript">
+
+
+GradationBlue( 'Blue' );
+GradationRed( 'Red' );
+GradationMerge(  );
+
+function GradationBlue( CanvasID ){
+	var CanvasElement = document.getElementById( CanvasID );
+	var CanvasContext = CanvasElement.getContext('2d');
+	
+	var WrkLGra = CanvasContext.createLinearGradient(0,0,0,256);
+	WrkLGra.addColorStop(0.0 , 'rgb(0,0,0)');
+	WrkLGra.addColorStop(1.0 , 'rgb(0,0,255)');
+	CanvasContext.fillStyle = WrkLGra;
+	CanvasContext.rect(0,0,255,255);
+	CanvasContext.fill();
+}
+
+
+function GradationRed( CanvasID ){
+	var CanvasElement = document.getElementById( CanvasID );
+	var CanvasContext = CanvasElement.getContext('2d');
+	
+	var WrkLGra = CanvasContext.createLinearGradient(0,0,256,0);
+	WrkLGra.addColorStop(0.0 , 'rgb(0,0,0)');
+	WrkLGra.addColorStop(1.0 , 'rgb(255,0,0)');
+	CanvasContext.fillStyle = WrkLGra;
+	CanvasContext.rect(0,0,255,255);
+	CanvasContext.fill();
+}
+
+
+function GradationMerge( ){
+	
+	GradationBlue( 'Merge' );
+	
+	var CanvasElement = document.getElementById( 'Merge' );
+	var CanvasContext = CanvasElement.getContext('2d');
+	CanvasContext.globalCompositeOperation = "lighter";
+	
+	GradationRed( 'Merge' );
+	
+}
+
+
+</script>
+
+</body>
+</html>

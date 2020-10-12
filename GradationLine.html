@@ -1,0 +1,26 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>GradationLine</title>
+</head>
+<body>
+
+<canvas width="256" height="256" id="test">
+
+<script type="text/javascript">
+
+var CanvasElement = document.getElementById( 'test' );
+var CanvasContext = CanvasElement.getContext('2d');
+
+var WrkLGra = CanvasContext.createLinearGradient(0,0,0,256);
+WrkLGra.addColorStop(0.0 , 'rgb(0,0,0)');
+WrkLGra.addColorStop(1.0 , 'rgb(0,0,255)');
+CanvasContext.fillStyle = WrkLGra;
+CanvasContext.rect(0,0,255,255);
+CanvasContext.fill();
+
+
+</script>
+
+</body>
+</html>
