@@ -1,0 +1,59 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>DropDown</title>
+</head>
+<body>
+
+<input type="text" id="data" value="999999">
+<input type="button" value="実行" onClick="Jikkou()"><br>
+
+
+<canvas id="CanvasID" width="500" height="20"></canvas><br>
+
+
+<script language="JavaScript">
+	
+	var Wak_Element = document.getElementById( 'CanvasID' );
+	Wak_Element.style.position = "absolute";
+	var Wak_Context = Wak_Element.getContext('2d');
+	
+	window.onload = function(){
+		
+		Wak_Context.strokeRect( 0 , 0 ,     Wak_Element.getBoundingClientRect().width  , Wak_Element.getBoundingClientRect().height );
+		//Wak_Context.translate(100,50);
+	}
+	
+	var IntTime = 10;
+	
+	function Jikkou() {
+		
+		Wak_Context.fillStyle = 'rgb(0,0,0)'; // 文字色
+		Wak_Context.font = '20px serif';
+		Wak_Context.fillText( document.getElementById( 'data' ).value + '[' + Wak_Element.style.top + ']' , 0, 20 );
+		
+		cnt = 0;
+		setTimeout( function () { Renzoku(); } , IntTime );
+		
+	}
+	
+	var cnt;
+	
+	function Renzoku() {
+		
+		
+		var PosY = 9.8 * Math.pow( cnt / 10 , 2 );
+		
+		Wak_Element.style.top = PosY + 'px';
+		
+		cnt = cnt + 1;
+		if( PosY <= 450 ){
+			setTimeout( function () { Renzoku(); } , IntTime );
+		}
+	}
+	
+</script>
+
+</body>
+</html>
+

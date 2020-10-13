@@ -1,0 +1,22 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>InputBox</title>
+</head>
+<body>
+
+<input type="text" id="data" value="初期値">
+<input type="button" value="実行" onClick="Jikkou()"><br>
+<span id="MsgField">ここが置き換わる</span>
+
+<script language="JavaScript">
+	
+	function Jikkou() {
+		document.getElementById( 'MsgField' ).innerHTML = document.getElementById( 'data' ).value ;
+	}
+	
+</script>
+
+</body>
+</html>
+
