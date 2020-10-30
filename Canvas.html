@@ -1,0 +1,54 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Canvas</title>
+</head>
+<body>
+
+<canvas id="rectangleW" width="300" height="100"></canvas>
+<canvas id="rectangleB" width="100" height="100">入れ子構造にはできない
+</canvas>
+<canvas id="rectangleC" width="50" height="50"></canvas>
+<canvas id="rectangleD" width="100" height="100"></canvas>
+
+<script language="JavaScript">
+	
+	
+	onload = function(){
+		
+		var rect_ctxW = document.getElementById("rectangleW").getContext("2d");
+		rect_ctxW.fillStyle = "rgb(128, 255, 128)";
+		rect_ctxW.fillRect(0, 0, document.getElementById("rectangleW").width, document.getElementById("rectangleW").height);
+		//rect_ctxW.beginPath();
+		rect_ctxW.strokeRect(0, 0, 300, 100);
+		
+		var rect_ctxB = document.getElementById("rectangleB").getContext("2d");
+		//rect_ctxB.beginPath();
+		rect_ctxB.fillStyle = "rgb(0, 0, 255)";
+		rect_ctxB.fillRect(10,10,50,50);
+		rect_ctxB.strokeRect(0, 0, 100, 100);
+		
+		var rect_ctxC = document.getElementById("rectangleC").getContext("2d");
+		document.getElementById("rectangleC").style.position = "absolute";
+		document.getElementById("rectangleC").style.top = "0px";
+		document.getElementById("rectangleC").style.left = "0px";
+		//rect_ctxC.beginPath();
+		rect_ctxC.fillStyle = "rgb(255,128, 128)";
+		rect_ctxC.fillRect(0, 0, document.getElementById("rectangleC").width, document.getElementById("rectangleC").height);
+		rect_ctxC.strokeRect(0, 0, 50, 50);
+		
+		var rect_ctxD = document.getElementById("rectangleD").getContext("2d");
+		rect_ctxD.fillStyle = "rgb(128, 128, 255)";
+		rect_ctxD.fillRect(0, 0, document.getElementById("rectangleD").width, document.getElementById("rectangleD").height);
+		//rect_ctxD.beginPath();
+		rect_ctxD.fill();
+		rect_ctxD.lineWidth = 3;
+		rect_ctxD.strokeRect(10, 10, 80, 80);
+		rect_ctxD.stroke();
+		
+	}
+	
+</script>
+
+</body>
+</html>
