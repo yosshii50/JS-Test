@@ -1,0 +1,69 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>ComboBox</title>
+</head>
+<body>
+
+<select id="ComboBox1" onchange="ComboBoxChange1();">
+	<option>H30</option>
+	<option>H31</option>
+	<option>H32</option>
+	<option>R1</option>
+	<option>R2</option>
+	<option>R3</option>
+	<option>R4</option>
+	<option>R5</option>
+	<option>R6</option>
+</select>
+
+<div id="SelectString"></div>
+<div id="ViewString"></div>
+
+<script language="JavaScript">
+	
+	window.onload = function(){
+		ComboBoxChange1();
+	}
+	
+	function ComboBoxChange1() {
+		
+		var WrkString = document.getElementById("ComboBox1").value;
+		document.getElementById("SelectString").innerHTML = WrkString;
+		
+		var SetStr = '';
+		switch( WrkString ) {
+		case ('H30'):
+			SetStr = '2018年';
+			break;
+		case ('H31'):
+			SetStr = '2019年 令和1年';
+			break;
+		case ('H32'):
+			SetStr = '2020年 令和2年';
+			break;
+		case ('R1'):
+			SetStr = '2019年 平成31年';
+			break;
+		case ('R2'):
+			SetStr = '2020年 平成32年';
+			break;
+		case ('R3'):
+			SetStr = '2021年 平成33年';
+			break;
+		case ('R4'):
+			SetStr = '2022年 平成34年';
+			break;
+		default :
+			SetStr = 'NoData:[' + WrkString + ']';
+			break;
+		}
+		
+		document.getElementById("ViewString").innerHTML = SetStr;
+		
+	}
+	
+</script>
+
+</body>
+</html>
