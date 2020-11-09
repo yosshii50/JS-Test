@@ -1,0 +1,22 @@
+h1 {color:red;background-color: black;}
+p {color:blue;}
+table {color:green; line-height:2;}
+th {color:yellow;}
+tr {color:black;}
+
+/* コメント */
+
+/* すべての要素 */
+* {background-color:#FFFFFF;}
+
+/* クラス名要素 */
+li.class1 {color:#990000;}
+/* [li.class1]とは別に[.class1]という使い方もできる */
+
+/* ID名要素 */
+li#id1 {color:#99FF99;background-color: black;}
+/* [li#id1]とは別に[#id1]という使い方もできる */
+
+
+
+
