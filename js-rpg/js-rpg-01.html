@@ -1,0 +1,298 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>JSでRPG 01 - 実験サイト</title> </head>
+	<body>
+	
+		<canvas id="Gr0CanvasID" width="650" height="580"></canvas>
+	
+	
+	<script language="JavaScript">
+		
+		window.onload = function(){
+			AutoExecFunction();
+		}
+		
+		//var rect_canvasW = document.getElementById("Gr0CanvasID");
+		//var rect_ctxW = rect_canvasW.getContext("2d");
+		var rect_ctxW = document.getElementById("Gr0CanvasID").getContext("2d");
+
+		// 画像
+		var ImgField = new Image(); // フィールド
+		var ImgFieldEnable = false;
+		var ImgCharMain = new Image(); // メインキャラ
+		var ImgCharMainEnable = false;
+		var ImgCharMainKage = new Image(); // メインキャラ影
+		var ImgCharMainKageEnable = false;
+
+		// 移動中
+		var NowMoveing = false;
+
+		function AutoExecFunction() {
+			
+
+			//// 四角を描いてみる
+			////rect_ctxW.beginPath();
+			//rect_ctxW.strokeRect(0, 0, 5, 10);
+    
+			//// 線を引いてみる
+			//rect_ctxW.beginPath() //パスをリセット
+			//rect_ctxW.moveTo(10, 10) //開始座標指定
+			//rect_ctxW.lineTo(20, 20) //ライン描画
+			//rect_ctxW.stroke() // 輪郭表示
+	
+	
+	
+			//var img_element = document.createElement("img");
+			//img_element.src = "./map.png";
+			//img_element.alt = "Bear";
+			//img_element.width = 200;
+
+			//const ImgField = new Image();
+			ImgField.src = "map.png";
+			ImgField.onload = () => {
+				ImgFieldEnable=true;
+				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 0, 0,32,32);
+				//// 150,  // sx      (元画像の切り抜き始点X)
+				//// 130,  // sy      (元画像の切り抜き始点Y)
+				//// 130,  // sWidth  (元画像の切り抜きサイズ：横幅)
+				//// 180,  // sHeight (元画像の切り抜きサイズ：高さ)
+				////   0,  // dx      (Canvasの描画開始位置X)
+				////   0,  // dy      (Canvasの描画開始位置Y)
+				//// 480,  // dWidth  (Canvasの描画サイズ：横幅)
+				//// 680   // dHeight (Canvasの描画サイズ：高さ)
+				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 32, 0,32,32);
+			};
+
+			// メインキャラ
+			ImgCharMain.src = "char-main.png";
+			ImgCharMain.onload = () => { ImgCharMainEnable=true; };
+
+			// メインキャラ影
+			ImgCharMainKage.src = "char-main-kage.png";
+			ImgCharMainKage.onload = () => { ImgCharMainKageEnable=true; };
+
+
+			input_key_buffer[37] = false;
+			input_key_buffer[38] = false;
+			input_key_buffer[39] = false;
+			input_key_buffer[40] = false;
+
+
+		}
+
+		FillColor = "rgba(  0,  0,  0,1.0)";
+		BackColor = "rgba(255,255,180,1.0)";
+
+		Cntkeydown = 0;
+
+		document.body.addEventListener( 'keydown' , event => {
+		
+
+			//if (event.key === 'v' ) {
+           
+				rect_ctxW.strokeStyle = FillColor; // 線の色
+				rect_ctxW.fillStyle   = BackColor; // 中の色
+				rect_ctxW.strokeRect(10 , 50 - 13 , 100, 15);
+				rect_ctxW.fillRect  (10 , 50 - 13 , 100, 15);
+
+				rect_ctxW.fillStyle = FillColor; // 中の色
+				rect_ctxW.font = "12px serif";
+				rect_ctxW.fillText(event.key + Cntkeydown , 10, 50);
+
+			//}
+
+			Cntkeydown++;
+
+		});
+
+		Cntonkeydown = 0;
+
+
+		// キーボードの入力状態を記録する配列
+		var input_key_buffer = new Array();
+
+		var LastKeyCode = 0;
+		document.onkeydown = function (e){
+			input_key_buffer[e.keyCode] = true;
+
+			if( LastKeyCode == e.keyCode ){
+				return;
+			}
+			LastKeyCode = e.keyCode;
+
+			rect_ctxW.strokeStyle = FillColor; // 線の色
+			rect_ctxW.fillStyle   = BackColor; // 中の色
+			rect_ctxW.strokeRect(10 , 70 - 13 , 100, 15);
+			rect_ctxW.fillRect  (10 , 70 - 13 , 100, 15);
+			rect_ctxW.fillStyle = FillColor; // 中の色
+			rect_ctxW.font = "12px serif";
+			rect_ctxW.fillText( e.keyCode + " ON " + Cntonkeydown , 10, 70);
+
+			Cntonkeydown++;
+
+			if( e.keyCode == 37 ){
+				NowMoveing = true;
+				MoveCharCount = 0;
+				MainCharPosY = 1;
+			}
+			if( e.keyCode == 38 ){
+				NowMoveing = true;
+				MoveCharCount = 0;
+				MainCharPosY = 3;
+			}
+			if( e.keyCode == 39 ){
+				NowMoveing = true;
+				MoveCharCount = 0;
+				MainCharPosY = 2;
+			}
+			if( e.keyCode == 40 ){
+				NowMoveing = true;
+				MoveCharCount = 0;
+				MainCharPosY = 0;
+			}
+
+		};
+
+		document.onkeyup = function (e){
+			input_key_buffer[e.keyCode] = false;
+			
+			LastKeyCode = 0;
+
+			rect_ctxW.strokeStyle = FillColor; // 線の色
+			rect_ctxW.fillStyle   = BackColor; // 中の色
+			rect_ctxW.strokeRect(10 , 70 - 13 , 100, 15);
+			rect_ctxW.fillRect  (10 , 70 - 13 , 100, 15);
+			rect_ctxW.fillStyle = FillColor; // 中の色
+			rect_ctxW.font = "12px serif";
+			rect_ctxW.fillText( e.keyCode + " OFF " + Cntonkeydown , 10, 70);
+
+			if( input_key_buffer[37] == false
+			 && input_key_buffer[38] == false
+			 && input_key_buffer[39] == false
+			 && input_key_buffer[40] == false ){
+				NowMoveing = false;
+			}
+
+		};
+
+
+		var FullCount = 0;
+		var MoveCharCount = 0;
+		var MainCharPosX = 0;
+		var MainCharPosY = 0;
+		const countUp = () => {
+			IntervalExecFunction();
+		}
+		setInterval(countUp, 100);
+
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+		function IntervalExecFunction() {
+			
+			rect_ctxW.strokeStyle = FillColor; // 線の色
+			rect_ctxW.fillStyle   = BackColor; // 中の色
+			rect_ctxW.strokeRect(10 , 90 - 13 , 100, 15);
+			rect_ctxW.fillRect  (10 , 90 - 13 , 100, 15);
+			rect_ctxW.fillStyle = FillColor; // 中の色
+			rect_ctxW.font = "12px serif";
+			rect_ctxW.fillText( FullCount + " " + NowMoveing, 10, 90);
+
+			FullCount++;
+
+			var ImgStandby = true;
+			if(	ImgFieldEnable        == true 
+			 && ImgCharMainEnable     == true 
+			 && ImgCharMainKageEnable == true ){
+				ImgStandby = true;
+			}
+
+			var CharSizeXY = 32; // １キャラのサイズ
+			var FieldPosX = 10;
+			var FieldPosY = 100;
+			var CharPosX = 1;
+			var CharPosY = 1;
+
+			if( NowMoveing == false ){
+				MainCharPosX = 1;
+			}else{
+				if( (MoveCharCount % 5) == 0 ){
+					if( MainCharPosX == 0  ){
+						MainCharPosX = 2;
+					}else{
+						MainCharPosX = 0;
+					}
+				}
+				MoveCharCount++;
+			}
+
+			if(	ImgStandby == true ){
+				for( IdxY = 0; IdxY < 15; IdxY++) {
+					for( IdxX = 0; IdxX < 20; IdxX++) {
+						
+						// 背景
+						rect_ctxW.drawImage(ImgField
+							, 0
+							, 0
+							, CharSizeXY
+							, CharSizeXY
+							, FieldPosX + IdxX * CharSizeXY
+							, FieldPosY + IdxY * CharSizeXY
+							, CharSizeXY
+							, CharSizeXY
+							);
+
+						// 上乗画像
+						rect_ctxW.drawImage(ImgField
+							, CharPosX * CharSizeXY
+							, CharPosY * CharSizeXY
+							, CharSizeXY
+							, CharSizeXY
+							, FieldPosX + IdxX * CharSizeXY
+							, FieldPosY + IdxY * CharSizeXY
+							, CharSizeXY
+							, CharSizeXY
+							);
+
+						// 真ん中の場合
+						if( IdxX == 10 && IdxY == 7 ){
+							
+							// メインキャラの影を表示
+							rect_ctxW.drawImage(ImgCharMainKage
+								, MainCharPosX * CharSizeXY
+								, MainCharPosY * CharSizeXY
+								, CharSizeXY
+								, CharSizeXY
+								, FieldPosX + IdxX * CharSizeXY
+								, FieldPosY + IdxY * CharSizeXY
+								, CharSizeXY
+								, CharSizeXY
+								);
+
+							// メインキャラを表示
+							rect_ctxW.drawImage(ImgCharMain
+								, MainCharPosX * CharSizeXY
+								, MainCharPosY * CharSizeXY
+								, CharSizeXY
+								, CharSizeXY
+								, FieldPosX + IdxX * CharSizeXY
+								, FieldPosY + IdxY * CharSizeXY
+								, CharSizeXY
+								, CharSizeXY
+								);
+
+
+						}
+
+					}
+				}
+			}
+		}
+
+
+
+
+	
+	</script>
+	
+	</body>
+</html>

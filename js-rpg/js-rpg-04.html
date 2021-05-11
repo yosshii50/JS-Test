@@ -1,0 +1,356 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>JSでRPG 04 - 実験サイト</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+
+	<table>
+	<tr>
+		<td>
+			<canvas id="GrMainCanvasID" width="640" height="480"></canvas>
+		</td>
+		<td valign="top">
+			<canvas id="GrDebugCanvasID"   width="320" height="100"></canvas><br>
+			<canvas id="GrFullMapCanvasID" width="320" height="100"></canvas><br>
+			<br>
+			キャラクターデータは <a href="https://pipoya.net/sozai/">ぴぽや倉庫</a> さんから拝借しています。<br>
+			コードが長くなったのでファイルを分けています、クラスを使いました。<br>
+			移動キーの重複入力に対応しました。[→]を押したまま[↓]を押してその後[↓]を放した場合、[→]押下を保持しています。<br>
+			移動していない時は、再描画をしないように修正しました。<br>
+			0.1秒以内にキー押下を放しても反応するようにしました。<br>
+
+		</td>
+	</tr>
+	<tr>
+		<td>
+		</td>
+	</tr>
+	</table>
+
+	<script language="JavaScript" src="regular.js"></script>
+	<script language="JavaScript" src="fullmap.js"></script>
+	<script language="JavaScript" src="onkeyscan.js"></script>
+
+	<script language="JavaScript">
+		
+		var rect_ctxW = document.getElementById("GrMainCanvasID"   ).getContext("2d");
+		var rect_ctx0 = document.getElementById("GrDebugCanvasID"  ).getContext("2d");
+		var rect_ctx2 = document.getElementById("GrFullMapCanvasID").getContext("2d");
+
+		var MapData = new Array(1024);
+		var MapPosX = 0;
+		var MapPosY = 0;
+
+		// 画像
+		var ImgField = new Image(); // フィールド
+		var ImgFieldEnable = false;
+		var ImgCharMain = new Image(); // メインキャラ
+		var ImgCharMainEnable = false;
+		var ImgCharMainKage = new Image(); // メインキャラ影
+		var ImgCharMainKageEnable = false;
+
+		// デバッグメッセージ
+		var DebugMsgBoxCharPos = {}; // メインキャラ選択位置
+		var DebugMsgBoxOnkey = {};
+		var DebugMsgBoxInterval = {};
+		var DebugMsgBoxKeyT = {};
+		//var DebugMsgBoxKeyU = {};
+
+		// キー入力
+		var OnKeyScan = {};
+
+		// フルマップ
+		var FullMap = {};
+
+		// インターバル処理
+		const countUp = () => {
+			IntervalExecFunction();
+		}
+		//setInterval(countUp, 100);
+		var GblInterval;
+
+		// 最初の実行
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+		//function AutoExecFunction() {
+
+			// デバッグメッセージ領域
+			rect_ctx0.strokeRect(0, 0, 320, 100); // 枠線
+			DebugMsgBoxCharPos  = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 0 );
+			DebugMsgBoxOnkey    = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 1 );
+			DebugMsgBoxInterval = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 2 );
+			DebugMsgBoxKeyT     = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 3 );
+			//DebugMsgBoxKeyU     = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 4 );
+
+			// キー入力
+			OnKeyScan = new OnKeyScanCls( document.body );
+
+			// フルマップ
+			FullMap = new FullMapCls( rect_ctx2 , "rgba( 64,180, 64,1.0)" , 100 , 100 );
+
+			//const ImgField = new Image();
+			ImgField.src = "../js-rpg/map.png";
+			ImgField.onload = () => {
+				ImgFieldEnable=true;
+				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 0, 0,32,32);
+				//// 150,  // sx      (元画像の切り抜き始点X)
+				//// 130,  // sy      (元画像の切り抜き始点Y)
+				//// 130,  // sWidth  (元画像の切り抜きサイズ：横幅)
+				//// 180,  // sHeight (元画像の切り抜きサイズ：高さ)
+				////   0,  // dx      (Canvasの描画開始位置X)
+				////   0,  // dy      (Canvasの描画開始位置Y)
+				//// 480,  // dWidth  (Canvasの描画サイズ：横幅)
+				//// 680   // dHeight (Canvasの描画サイズ：高さ)
+				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 32, 0,32,32);
+			};
+
+			// メインキャラ
+			ImgCharMain.src = "../js-rpg/char-main.png";
+			ImgCharMain.onload = () => { ImgCharMainEnable=true; };
+
+			// メインキャラ影
+			ImgCharMainKage.src = "../js-rpg/char-main-kage.png";
+			ImgCharMainKage.onload = () => { ImgCharMainKageEnable=true; };
+
+			// document.write("aa");
+
+			for(let idx = 0; idx < MapData.length; idx++ ) {
+				MapData[idx] = new Array(1024).fill(0);
+			}
+			for(let idx = 0; idx < 100000; idx++ ) {
+				RndX = Math.round( Math.random() * 1023 );
+				RndY = Math.round( Math.random() * 1023 );
+				MapData[RndX][RndY] = 1;
+				//document.write(RndX + " " + RndY + "<BR>" );
+
+			}
+			
+			//document.write("aa");
+
+			// 初期インターバル始動
+			GblInterval = setInterval(countUp, 100);
+
+		}
+
+		var MoveCharCount = 0;
+		var IsMoveChar = false; // 今移動中か
+		var OnKeyScanNowMove = -1;
+		var MainCharPosX = 0;
+		var MainCharPosY = 0;
+		var MapOffsetX = 0;
+		var MapOffsetY = 0;
+		
+		document.body.addEventListener('OnKeyScanKeyDown', ( {detail} ) => {
+			//DebugMsgBoxKeydown.Write( event.key );
+			//DebugMsgBoxOnkey.Write( event.keyCode + " ON" );
+			DebugMsgBoxOnkey.Write( detail.keyCode + " ON  "
+								+  OnKeyScan.MoveStatus[0] + " "
+			                    +  OnKeyScan.MoveStatus[1] + " "
+			                    +  OnKeyScan.MoveStatus[2] + " "
+			                    +  OnKeyScan.MoveStatus[3] + " "
+								+  OnKeyScan.LastMove);
+		});
+		document.body.addEventListener('OnKeyScanKeyUp', ( {detail} ) => {
+			//DebugMsgBoxKeydown.Write( event.key );
+			//DebugMsgBoxOnkey.Write( event.keyCode + " ON" );
+			DebugMsgBoxOnkey.Write( detail.keyCode + " OFF "
+								+  OnKeyScan.MoveStatus[0] + " "
+			                    +  OnKeyScan.MoveStatus[1] + " "
+			                    +  OnKeyScan.MoveStatus[2] + " "
+			                    +  OnKeyScan.MoveStatus[3] + " "
+								+  OnKeyScan.LastMove);
+		});
+		document.body.addEventListener('OnKeyScanMove', ( {detail} ) => {
+			OnKeyScanNowMove = detail;
+			DebugMsgBoxKeyT.Write( OnKeyScanNowMove );
+
+			if( GblInterval == 0 ){
+				// インターバルが実行中でない場合
+
+				// 最初の移動を実行
+				IntervalExecFunction();
+				
+				// 移動によるインターバル始動
+				GblInterval = setInterval(countUp, 100);
+			
+			}
+
+		});
+
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+		function IntervalExecFunction() {
+			
+			// デバッグ用カウント
+			DebugMsgBoxInterval.Write( "" );
+
+			var ImgStandby = true;
+			if(	ImgFieldEnable        == true 
+			 && ImgCharMainEnable     == true 
+			 && ImgCharMainKageEnable == true ){
+				ImgStandby = true;
+			}
+
+			var CharSizeXY = 32; // １キャラのサイズ
+			var MoveStep = 8; // 移動のステップ数
+			var FieldPosX = 0;
+			var FieldPosY = 0;
+			var CharPosX = 1;
+			var CharPosY = 1;
+
+			// メインキャラ選択位置
+			DebugMsgBoxCharPos.Write( "X:" + MainCharPosX + " Y:" + MainCharPosY );
+
+			if( IsMoveChar == false ){
+				// 移動中でない場合
+
+				MainCharPosX = 1;
+
+				switch( OnKeyScanNowMove ){
+				case 0: // ←
+					MapPosX--;
+					MainCharPosY = 1;
+					IsMoveChar = true;
+					break;
+				case 1: // ↑
+					MapPosY--;
+					MainCharPosY = 3;
+					IsMoveChar = true;
+					break;
+				case 2: // →
+					MapPosX++;
+					MainCharPosY = 2;
+					IsMoveChar = true;
+					break;
+				case 3: // ↓
+					MapPosY++;
+					MainCharPosY = 0;
+					IsMoveChar = true;
+					break;
+				}
+
+			}
+
+			if( IsMoveChar == true ){
+				// 移動中の場合
+
+				if( MainCharPosX == 1 ){
+					MoveCharCount = 0;
+				}
+				if( MoveCharCount == 0 ||  MoveCharCount == 1 ){
+					MainCharPosX = 0;
+				}else{
+					MainCharPosX = 2;
+				}
+
+				switch( MainCharPosY ){
+				case 1: // ←
+					MapOffsetX = (MoveCharCount - 3) * MoveStep;
+					if( MapOffsetX == 0 ){
+						IsMoveChar = false;
+					}
+					break;
+				case 3: // ↑
+					MapOffsetY = (MoveCharCount - 3) * MoveStep;
+					if( MapOffsetY == 0 ){
+						IsMoveChar = false;
+					}
+					break;
+				case 2: // →
+					MapOffsetX = (3 - MoveCharCount) * MoveStep;
+					if( MapOffsetX == 0 ){
+						IsMoveChar = false;
+					}
+					break;
+				default: // 0:↓
+					MapOffsetY = (3 - MoveCharCount) * MoveStep;
+					if( MapOffsetY == 0 ){
+						IsMoveChar = false;
+					}
+				}
+
+				MoveCharCount++;
+			}
+
+			if(	ImgStandby == true ){
+				for( var IdxY = 0; IdxY < 15; IdxY++) {
+					for( var IdxX = 0; IdxX < 20; IdxX++) {
+						
+						// 背景
+						rect_ctxW.drawImage(ImgField
+							, 0
+							, 0
+							, CharSizeXY
+							, CharSizeXY
+							, FieldPosX + IdxX * CharSizeXY + MapOffsetX
+							, FieldPosY + IdxY * CharSizeXY + MapOffsetY
+							, CharSizeXY
+							, CharSizeXY
+						);
+
+						if( MapData[IdxX + MapPosX][IdxY + MapPosY] == 1 ){
+							// 上乗画像
+							rect_ctxW.drawImage(ImgField
+								, CharPosX * CharSizeXY
+								, CharPosY * CharSizeXY
+								, CharSizeXY
+								, CharSizeXY
+								, FieldPosX + IdxX * CharSizeXY + MapOffsetX
+								, FieldPosY + IdxY * CharSizeXY + MapOffsetY
+								, CharSizeXY
+								, CharSizeXY
+							);
+						}
+
+					}
+				}
+
+				IdxX = 10;
+				IdxY = 7;
+
+				// メインキャラの影を表示
+				rect_ctxW.drawImage(ImgCharMainKage
+					, MainCharPosX * CharSizeXY
+					, MainCharPosY * CharSizeXY
+					, CharSizeXY
+					, CharSizeXY
+					, FieldPosX + IdxX * CharSizeXY
+					, FieldPosY + IdxY * CharSizeXY
+					, CharSizeXY
+					, CharSizeXY
+					);
+
+				// メインキャラを表示
+				rect_ctxW.drawImage(ImgCharMain
+					, MainCharPosX * CharSizeXY
+					, MainCharPosY * CharSizeXY
+					, CharSizeXY
+					, CharSizeXY
+					, FieldPosX + IdxX * CharSizeXY
+					, FieldPosY + IdxY * CharSizeXY
+					, CharSizeXY
+					, CharSizeXY
+					);
+
+			}
+
+			if( IsMoveChar != true && OnKeyScan.NowMove() == -1 ){
+				// 描画が完了したらインターバル終了
+				clearInterval(GblInterval);
+				GblInterval = 0;
+
+			}
+
+		}
+
+
+
+
+	
+	</script>
+	
+	</body>
+</html>

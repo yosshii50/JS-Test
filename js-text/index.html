@@ -1,0 +1,77 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>JSでText - 実験サイト</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+
+	<table>
+	<tr>
+		<td valign="top">
+			<input type="text" value="">
+			<input id="text001" type="text" value=""><br>
+			<input type="text" value="">
+			<input id="text002" type="text" value=""><br>
+			<input type="text" value="">
+			<input type="text" value="">
+		</td>
+		<td valign="top">
+			<canvas id="GrDebugCanvasID"   width="320" height="100"></canvas><br>
+			<br>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		</td>
+	</tr>
+	</table>
+
+	<script language="JavaScript" src="../js-rpg/regular.js"></script>
+	<script language="JavaScript" src="../js-rpg/onkeyscan.js"></script>
+
+	<script language="JavaScript">
+		
+		var rect_ctx0 = document.getElementById("GrDebugCanvasID"  ).getContext("2d");
+
+		// デバッグメッセージ
+		var DebugMsgBoxOnkey = {};
+
+		// キー入力
+		var OnKeyScan = {};
+
+		// 最初の実行
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+		//function AutoExecFunction() {
+
+			// デバッグメッセージ領域
+			rect_ctx0.strokeRect(0, 0, 320, 100); // 枠線
+			DebugMsgBoxOnkey    = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 0 , 200 );
+
+			// キー入力
+			OnKeyScan = new OnKeyScanCls( document.body );
+
+			// document.write("aa");
+
+			document.getElementById('text001').focus();
+
+			//document.write("aa");
+
+		}
+		
+		document.body.addEventListener('OnKeyScanKeyDown', ( {detail} ) => {
+			DebugMsgBoxOnkey.Write( detail.keyCode + " ON  " );
+			if( detail.keyCode == 13 ){
+				document.getElementById('text002').focus();
+			}
+		});
+		document.body.addEventListener('OnKeyScanKeyUp', ( {detail} ) => {
+			DebugMsgBoxOnkey.Write( detail.keyCode + " OFF " );
+		});
+	
+	</script>
+	
+	</body>
+</html>
