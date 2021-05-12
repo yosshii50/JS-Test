@@ -1,20 +1,20 @@
 <html>
 	<meta http-equiv="content-type" charset="utf-8">
 	<head>
-		<title>JSでRPG 04 - 実験サイト</title>
+		<title>JSでRPG 05 - 実験サイト</title>
 		<link rel="icon" href="/favicon.ico">
 		<meta http-equiv="Expires" content="0">
 		</head>
 	<body>
 
-	<table>
+	<table style="table-layout:fixed">
 	<tr>
-		<td>
+		<td valign="top">
 			<canvas id="GrMainCanvasID" width="640" height="480"></canvas>
 		</td>
 		<td valign="top">
 			<canvas id="GrDebugCanvasID"   width="320" height="100"></canvas><br>
-			<canvas id="GrFullMapCanvasID" width="320" height="100"></canvas><br>
+			<canvas id="GrFullMapCanvasID" width="100" height="100"></canvas><br>
 			<br>
 			キャラクターデータは <a href="https://pipoya.net/sozai/">ぴぽや倉庫</a> さんから拝借しています。<br>
 			コードが長くなったのでファイルを分けています、クラスを使いました。<br>
@@ -26,23 +26,28 @@
 	</tr>
 	<tr>
 		<td>
+			<input type="text" value="">
+			<input type="text" value="">
+			<input type="text" value="">
+			<input type="text" value="">
 		</td>
 	</tr>
 	</table>
 
-	<script language="JavaScript" src="regular.js"></script>
-	<script language="JavaScript" src="fullmap.js"></script>
+	<script language="JavaScript" src="https://www.ajesta.work/js-exp/regular.js"></script>
 	<script language="JavaScript" src="onkeyscan.js"></script>
+	<script language="JavaScript" src="rpg-fullmap.js"></script>
 
 	<script language="JavaScript">
+		// src="https://www.ajesta.work/js-rpg/regular.js">
 		
 		var rect_ctxW = document.getElementById("GrMainCanvasID"   ).getContext("2d");
 		var rect_ctx0 = document.getElementById("GrDebugCanvasID"  ).getContext("2d");
 		var rect_ctx2 = document.getElementById("GrFullMapCanvasID").getContext("2d");
 
 		var MapData = new Array(1024);
-		var MapPosX = 0;
-		var MapPosY = 0;
+		var MapPosX = 512;
+		var MapPosY = 512;
 
 		// 画像
 		var ImgField = new Image(); // フィールド
@@ -92,7 +97,7 @@
 			FullMap = new FullMapCls( rect_ctx2 , "rgba( 64,180, 64,1.0)" , 100 , 100 );
 
 			//const ImgField = new Image();
-			ImgField.src = "../js-rpg/map.png";
+			ImgField.src = "../rpg-img/map.png";
 			ImgField.onload = () => {
 				ImgFieldEnable=true;
 				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 0, 0,32,32);
@@ -108,11 +113,11 @@
 			};
 
 			// メインキャラ
-			ImgCharMain.src = "../js-rpg/char-main.png";
+			ImgCharMain.src = "../rpg-img/char-main.png";
 			ImgCharMain.onload = () => { ImgCharMainEnable=true; };
 
 			// メインキャラ影
-			ImgCharMainKage.src = "../js-rpg/char-main-kage.png";
+			ImgCharMainKage.src = "../rpg-img/char-main-kage.png";
 			ImgCharMainKage.onload = () => { ImgCharMainKageEnable=true; };
 
 			// document.write("aa");

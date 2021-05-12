@@ -4,56 +4,58 @@
 		<title>お絵かき</title> </head>
 	<body>
 	
-	<canvas id="GrOekakCanvasID" width="1024" height="1024"></canvas>
-	<canvas id="GrDebugCanvasID" width="320" height="100"></canvas>
-
+	<table style="table-layout:fixed">
+	<tr>
+		<td valign="top">
+			<canvas id="GrOekakCanvasID" width="640" height="480"></canvas>
+		</td>
+		<td valign="top">
+			<canvas id="GrDebugCanvasID" width="320" height="100"></canvas>
+		</td>
+	</tr>
+	</table>
 	
 	<script language="JavaScript" src="https://www.ajesta.work/js-exp/regular.js"></script>
+	<script language="JavaScript" src="paintcls.js"></script>
 	
 	<script language="JavaScript">
 		
-		var rect_ctx2 = document.getElementById("GrOekakCanvasID").getContext("2d");
-		var rect_ctx0 = document.getElementById("GrDebugCanvasID").getContext("2d");
+		var EmtDrw = document.getElementById("GrOekakCanvasID");
+		var CtxDbg = ( EmtDbg = document.getElementById("GrDebugCanvasID") ).getContext("2d");
 
 		// デバッグメッセージ
-		var DebugMsgBoxCharPos = {}; // メインキャラ選択位置
+		var DebugMsgBoxMousePos = {}; // マウス位置
 		var DebugMsgBoxOnkey = {};
+			
+		// ペイント領域
+		var MainPaint = {};
 
 		// 最初の実行
 		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
 		function DOMContentLoaded_Exec() {
-
-			// デバッグメッセージ領域
-			rect_ctx0.strokeRect(0, 0, 320, 100); // 枠線
-			DebugMsgBoxCharPos  = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 0 );
-			DebugMsgBoxOnkey    = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 1 );
 			
-			rect_ctx2.strokeStyle = "rgba(  0,  0,  0,1.0)"; // 線の色
-			rect_ctx2.fillStyle   = "rgba( 64,180, 64,1.0)"; // 中の色
-			rect_ctx2.fillRect  (0 ,0, 1024, 1024);
-			rect_ctx2.strokeRect(0, 0, 1024, 1024);
-    
-			// document.write("aa");
+			// デバッグメッセージ領域
+			CtxDbg.strokeRect(0, 0, EmtDbg.getBoundingClientRect().width
+			                      , EmtDbg.getBoundingClientRect().height ); // 枠線
+			DebugMsgBoxMousePos  = new DebugMsgBoxCls( CtxDbg , 3 , 16 + 18 * 0 , 200);
+			DebugMsgBoxOnkey     = new DebugMsgBoxCls( CtxDbg , 3 , 16 + 18 * 1 );
+			
+			// ペイント領域
+			MainPaint = new PaintCls( EmtDrw );
+			MainPaint.CtxDrw.strokeStyle = "rgba(  0,  0,  0,1.0)"; // 線の色
+			MainPaint.CtxDrw.fillStyle   = "rgba( 64,180, 64,1.0)"; // 中の色
+			MainPaint.CtxDrw.fillRect  (0 ,0, EmtDrw.getBoundingClientRect().width
+			                                , EmtDrw.getBoundingClientRect().height);
+			MainPaint.CtxDrw.strokeRect(0, 0, EmtDrw.getBoundingClientRect().width
+			                                , EmtDrw.getBoundingClientRect().height);
+			
+			//document.write("aa");
 
 			
 			//document.write("aa");
 
 		}
-
-		// マウス
-		Box_Element.onmousedown = (event) => {
-			MouseDownEve(event,"mousemove");
-		}
-		Box_Element.onpointerdown = (event) => {
-			MouseDownEve(event,"pointermove");
-		}
-		function MouseDownEve(event,EventName){
-			
-			// デバッグメッセージ表示
-			DebugMsgBoxCharPos.Write( event + " " +  EventName );
-
-		}
-
+		
 
 
 
