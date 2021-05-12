@@ -1,0 +1,239 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>グラデーションから色情報取得</title>
+</head>
+<body>
+
+<canvas width="256" height="256" id="Blue"></canvas>＋
+<canvas width="256" height="256" id="Red"></canvas>＋
+<canvas width="256" height="256" id="Green"></canvas>
+
+
+<canvas id="Wak_CanvasID" width="20" height="276"></canvas>
+<canvas id="Box_CanvasID" width="20" height="20"></canvas>
+←スクロールして明るさ変更
+
+
+<br>＝
+<canvas width="256" height="256" id="MergeCanvas"></canvas>
+<span id="ViewString">←これをクリック</span><br>
+<canvas id="DstCanvasID" width="50" height="50"></canvas>
+
+
+
+<script language="JavaScript" src="mouseclickcls.js"></script>
+
+<script type="text/javascript">
+
+var Wak_Element = document.getElementById("Wak_CanvasID");
+var Box_Element = document.getElementById("Box_CanvasID");
+var Box_PosY=0;
+var Box_Value=0;
+var Mouse_Offset=0;
+
+var MergeEmt = document.getElementById( 'MergeCanvas' );
+var MergeMouseClick = {};
+
+window.onload = (event) => {
+	
+	MergeMouseClick = new MouseClickCls( MergeEmt );
+
+	// Waku
+	var Wak_Context = Wak_Element.getContext("2d");
+	Wak_Context.strokeRect(0, 0, Wak_Element.getBoundingClientRect().width
+	                           , Wak_Element.getBoundingClientRect().height);
+	
+	// Box
+	Box_Element.style.position = "absolute";
+	Box_Element.style.top  = Wak_Element.getBoundingClientRect().top  + "px";
+	Box_Element.style.left = Wak_Element.getBoundingClientRect().left + "px";
+	
+	var Box_Context = Box_Element.getContext("2d");
+	Box_Context.fillStyle = "rgb(127, 127, 127)";
+	Box_Context.fillRect(0, 0, Box_Element.getBoundingClientRect().width
+	                         , Box_Element.getBoundingClientRect().height);
+	Box_PosY = Box_Element.getBoundingClientRect().top;
+	
+	// 色塗り
+	GradationBlue ( 'Blue'  );
+	GradationRed  ( 'Red'   );
+	
+	SetValue();
+	
+//	GradationGreen( 'Green' , 128 );
+//	GradationMerge();
+	
+}
+
+// getImageData.data から RGB文字列('#FFFFFF')に変換
+function ColorPx2RGB( ImageData_Data ){
+	return '#' + (('0' + ImageData_Data[0].toString(16).toUpperCase()).substr(-2))
+	           + (('0' + ImageData_Data[1].toString(16).toUpperCase()).substr(-2))
+	           + (('0' + ImageData_Data[2].toString(16).toUpperCase()).substr(-2));
+}
+
+MergeEmt.addEventListener('MouseClickAj', function(e) {
+	
+	// 結果表示
+	//document.getElementById("ViewString").innerHTML = e.detail.clientX + ' ' + e.detail.clientY;
+
+	var x = MergeMouseClick.NowPosX;
+	var y = MergeMouseClick.NowPosY;
+    var imgdata = MergeMouseClick.CtxDrw.getImageData(x, y, 1, 1);
+
+    //var r = imgdata.data[0];
+    //var g = imgdata.data[1];
+    //var b = imgdata.data[2];
+	var rgbstr = ColorPx2RGB( imgdata.data );
+
+	document.getElementById("ViewString").innerHTML = 'X:' + x + ' Y:' + y + ' ' + rgbstr ;
+
+
+	var DstCanvasElement = document.getElementById("DstCanvasID");
+	var DstCanvasContext = DstCanvasElement.getContext("2d");
+	DstCanvasContext.fillStyle = rgbstr;
+	DstCanvasContext.fillRect( 0, 0
+	        , DstCanvasElement.getBoundingClientRect().width
+	        , DstCanvasElement.getBoundingClientRect().height );
+
+	
+
+	//document.write( e.detail.clientX );
+	//document.write( e.detail.clientY );
+
+});
+
+function GradationBlue( CanvasID ){
+	var CanvasElement = document.getElementById( CanvasID );
+	var CanvasContext = CanvasElement.getContext('2d');
+	
+	var WrkLGra = CanvasContext.createLinearGradient(0,0,0,256);
+	WrkLGra.addColorStop(0.0 , 'rgb(0,0,0)');
+	WrkLGra.addColorStop(1.0 , 'rgb(0,0,255)');
+	CanvasContext.fillStyle = WrkLGra;
+	CanvasContext.rect(0,0,255,255);
+	CanvasContext.fill();
+}
+
+
+function GradationRed( CanvasID ){
+	var CanvasElement = document.getElementById( CanvasID );
+	var CanvasContext = CanvasElement.getContext('2d');
+	
+	var WrkLGra = CanvasContext.createLinearGradient(0,0,256,0);
+	WrkLGra.addColorStop(0.0 , 'rgb(0,0,0)');
+	WrkLGra.addColorStop(1.0 , 'rgb(255,0,0)');
+	CanvasContext.fillStyle = WrkLGra;
+	CanvasContext.rect(0,0,255,255);
+	CanvasContext.fill();
+}
+
+
+
+function GradationGreen( CanvasID , ColVal ){
+	var CanvasElement = document.getElementById( CanvasID );
+	var CanvasContext = CanvasElement.getContext('2d');
+	
+	CanvasContext.fillStyle = 'rgb(0, ' +  ColVal + ', 0)';
+	CanvasContext.rect(0,0,255,255);
+	CanvasContext.fill();
+}
+
+
+function GradationMerge( ColVal ){
+	
+	var CanvasElement = document.getElementById( 'MergeCanvas' );
+	var CanvasContext = CanvasElement.getContext('2d');
+	
+	CanvasContext.globalCompositeOperation = "source-over";
+	
+	GradationBlue( 'MergeCanvas' );
+	
+	CanvasContext.globalCompositeOperation = "lighter";
+	
+	GradationRed( 'MergeCanvas' );
+	GradationGreen( 'MergeCanvas' , ColVal );
+	
+}
+
+
+// MouseDownEvent
+Box_Element.onmousedown = (event) => {
+	MouseDownEve(event,"mousemove");
+}
+Box_Element.onpointerdown = (event) => {
+	MouseDownEve(event,"pointermove");
+}
+function MouseDownEve(event,EventName){
+	Mouse_Offset = event.clientY - Box_PosY;
+	document.addEventListener(EventName,OnMouseMove);
+}
+
+// MouseUpEvent
+Box_Element.onmouseup = (event) => {
+	MouseUpEve("mousemove");
+}
+Box_Element.onpointerup = (event) => {
+	MouseUpEve("pointermove");
+}
+function MouseUpEve(EventName){
+	document.removeEventListener(EventName,OnMouseMove);
+}
+
+// MouseMove
+var OnMouseMove = (event) => {
+	
+	if(event.buttons !== undefined){
+		if( (event.buttons & 1) != 1 ){
+			MouseUpEve("mousemove");
+			MouseUpEve("pointermove");
+			return;
+		}
+	}
+	
+	Box_PosY = event.clientY - Mouse_Offset;
+	
+	// Left MaxLimit
+	var LMax = Wak_Element.getBoundingClientRect().top;
+	if( Box_PosY < LMax ){
+		Box_PosY = LMax;
+	}
+	
+	// Right MaxLimit
+	var RMax = Wak_Element.getBoundingClientRect().height
+	         - Box_Element.getBoundingClientRect().height
+	         + Wak_Element.getBoundingClientRect().top;
+	if( Box_PosY > RMax ){
+		Box_PosY = RMax;
+	}
+	
+	Box_Element.style.top = Box_PosY + "px";
+	
+	SetValue();
+	
+}
+
+function SetValue(){
+	
+	var SbMin = Wak_Element.getBoundingClientRect().top;
+	var SbMax = Wak_Element.getBoundingClientRect().height
+	          - Box_Element.getBoundingClientRect().height
+	          + Wak_Element.getBoundingClientRect().top;
+	var SbPos = Box_PosY;
+	
+	var SbPct = ( SbPos - SbMin ) / ( SbMax - SbMin );
+	
+	var VlMin = 0;
+	var VlMax = 255;
+	
+	var Box_Value = SbPct * ( VlMax - VlMin ) + VlMin;
+	
+	GradationGreen( 'Green' , parseInt( Box_Value ) );
+	GradationMerge( parseInt( Box_Value ) );
+}
+
+</script>
+
+</body>
+</html>
