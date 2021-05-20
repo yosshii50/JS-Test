@@ -8,21 +8,13 @@ $pdf = new TCPDF( "L", "mm", array( 100,100) , true, "UTF-8" );
 
 $pdf->AddPage();
 
-
-// 自動改ページ機能をOFF
-$bMargin = $pdf->getBreakMargin();
-$auto_page_break = $pdf->getAutoPageBreak();
-$pdf->SetAutoPageBreak(false, 0);
-
-// ページ全体に画像を張り付け
-$pdf->Image('/var/www/img.jpg', 0, 0, 50, 50, '', '', '', false, 300, '', false, false, 0);
-
-// ページ設定を元に戻す
-$pdf->SetAutoPageBreak($auto_page_break, $bMargin);
-
-
 $pdf->SetFont( "kozgopromedium", "", 12 );
-$pdf->Text( 10, 10, "テストPDFファイル" );
+$pdf->Text( 10, 10, "納品書" );
+$pdf->Text( 10, 20, "株式会社電産製作所" );
+
+// 画像を張り付け
+$pdf->Image('/var/www/html/pdf/seal_maru.png', 10, 10, 20, 20, '', '', '', false, 300, '', false, false, 0);
+$pdf->Image('/var/www/html/pdf/seal_kaku.png', 10, 20, 20, 20, '', '', '', false, 300, '', false, false, 0);
 
 $pdf->Output("test.pdf", "I");
 
