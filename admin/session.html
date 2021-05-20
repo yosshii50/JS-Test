@@ -1,0 +1,48 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+        <head>
+                <title>管理者</title>
+                <link rel="icon" href="/favicon.ico">
+        </head>
+        <body>
+
+                <?php
+
+
+
+session_start();
+//$session_id = session_id();
+//print( 'セッションID : ' . $session_id . '<br>' );
+print( 'セッションID : ' . session_id() . '<br>' );
+
+print( 'Cookie/PHPSESSID : ' . $_COOKIE['PHPSESSID'] . '<br>' );
+//echo $_COOKIE['a'];
+
+
+
+
+//setcookie('a', 'b', time()+60*60, '/', 'www.ajesta.com', true, true);
+setcookie('a', time() , 2147483647 );
+//setcookie('a', 'bbb', -1);
+
+//setcookie(username,yamada,time()+60*60*24*7);
+echo $_COOKIE['a'];
+
+
+
+//$_COOKIE = array(
+//    'name' => 'sato';
+//)
+
+$name = $_COOKIE['name'];
+echo $name;
+
+
+
+                ?>aa
+                あああ<br>
+                <?php include('test.php'); ?><br>
+                いいい<br>
+
+        </body>
+</html>
