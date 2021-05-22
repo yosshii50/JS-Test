@@ -1,0 +1,40 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>POSTでサーバに送信(XMLHttpRequest)</title>
+</head>
+<body>
+
+
+<form id="f1">
+	<input type="file" id="file1" name="file1">
+	<button type="button" onclick="file_upload()">アップロード</button>
+</form>
+
+
+<script language="JavaScript">
+	
+	function file_upload()
+	{
+		
+		// フォームデータを取得
+		var formdata = new FormData( document.getElementById('f1') );
+		
+		// XMLHttpRequestによるアップロード処理
+		var xhttpreq = new XMLHttpRequest();
+		
+		xhttpreq.onreadystatechange = function() {
+			if (xhttpreq.readyState == 4 && xhttpreq.status == 200) {
+				alert(xhttpreq.responseText);
+			}
+		};
+		
+		xhttpreq.open("POST", "post2.php", true);
+		xhttpreq.send(formdata);
+		
+	}
+	
+</script>
+
+</body>
+</html>

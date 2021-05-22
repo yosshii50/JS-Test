@@ -5,23 +5,10 @@
 </head>
 <body>
 
-<input type="file">
-
-<input type="button" value="送信" onClick="Jikkou()"><br>
-
-
-
-
-<script language="JavaScript">
-	
-	function Jikkou() {
-		var request = new XMLHttpRequest();
-		request.open("POST", "post.php", true);
-		request.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-		request.send("fname=post_save.dat&data=" + Box_Value);
-	}
-
-</script>
+<form action="post.php" enctype="multipart/form-data" method="post">
+	<input name="file_upload" type="file">
+	<input type="submit" value="アップロード">
+</form>
 
 </body>
 </html>
