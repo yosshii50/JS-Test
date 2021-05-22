@@ -1,0 +1,27 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>POSTでサーバに送信</title>
+</head>
+<body>
+
+<input type="file">
+
+<input type="button" value="送信" onClick="Jikkou()"><br>
+
+
+
+
+<script language="JavaScript">
+	
+	function Jikkou() {
+		var request = new XMLHttpRequest();
+		request.open("POST", "post.php", true);
+		request.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+		request.send("fname=post_save.dat&data=" + Box_Value);
+	}
+
+</script>
+
+</body>
+</html>

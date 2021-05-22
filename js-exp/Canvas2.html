@@ -1,0 +1,37 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Canvasを全面表示</title>
+</head>
+<body>
+
+<canvas id="rectangleW" width="1280px" height="768px" style="position:fixed; top:0; left:0; width:100%; height:100%;"></canvas>
+
+<script language="JavaScript">
+	
+	// AutoExec
+	document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+	function DOMContentLoaded_Exec() {
+		
+		var rect_ctxW = document.getElementById("rectangleW").getContext("2d");
+		rect_ctxW.fillStyle = "rgb(200, 255, 200)";
+		rect_ctxW.fillRect(0, 0, document.getElementById("rectangleW").width, document.getElementById("rectangleW").height);
+		//rect_ctxW.beginPath();
+		rect_ctxW.strokeRect(0, 0, document.getElementById("rectangleW").width, document.getElementById("rectangleW").height);
+
+		rect_ctxW.fillStyle = "rgb(0, 0, 0)";
+		//rect_ctxW.fillRect(0, 0, 10,10);
+		rect_ctxW.strokeRect(100, 100, 100,100);
+		
+		rect_ctxW.fillStyle = 'rgb(0,0,0)'; // 文字色
+		rect_ctxW.font = '20px serif';
+		rect_ctxW.fillText( 'ブラウザの表示エリア全面を使っている' , 0, 20 );
+		rect_ctxW.fillText( '縦横比がおかしくなる' , 0, 40 );
+		rect_ctxW.fillText( '名前を付けて保存ができる' , 0, 60 );
+
+	}
+	
+</script>
+
+</body>
+</html>

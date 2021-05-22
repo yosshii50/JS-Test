@@ -1,0 +1,44 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>CanvasをTABLE</title>
+</head>
+<body>
+
+<section id="body" style="position:absolute; top:0; left:0; width:200;">
+	ここは通常のHTML<br>
+</section>
+
+<canvas id="rectangleW" width="1280px" height="768px" style="position:fixed; top:0; left:200; width:1280; height:768;"></canvas>
+
+
+
+
+
+
+<script language="JavaScript">
+	
+	// AutoExec
+	document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+	function DOMContentLoaded_Exec() {
+		
+		var rect_ctxW = document.getElementById("rectangleW").getContext("2d");
+		rect_ctxW.fillStyle = "rgb(200, 255, 200)";
+		rect_ctxW.fillRect(0, 0, document.getElementById("rectangleW").width, document.getElementById("rectangleW").height);
+		//rect_ctxW.beginPath();
+		rect_ctxW.strokeRect(0, 0, document.getElementById("rectangleW").width, document.getElementById("rectangleW").height);
+
+		rect_ctxW.fillStyle = "rgb(0, 0, 0)";
+		//rect_ctxW.fillRect(0, 0, 10,10);
+		rect_ctxW.strokeRect(100, 100, 100,100);
+		
+		rect_ctxW.fillStyle = 'rgb(0,0,0)'; // 文字色
+		rect_ctxW.font = '20px serif';
+		rect_ctxW.fillText( 'あいうえお' , 0, 20 );
+
+	}
+	
+</script>
+
+</body>
+</html>
