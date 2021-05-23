@@ -1,7 +1,8 @@
 <?php
 
 // セッション開始
-session_start();
+// セッション開始はHTMLの先頭に記述する事
+//session_start();
 
 // リロード判定用セッションデータが存在するか確認
 if( isset($_SESSION['access_count_reload']) ){

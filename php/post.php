@@ -1,17 +1,18 @@
 <?php
 
-echo "PHPÀs<br>";
+echo "PHPå®Ÿè¡Œ<br>";
 
-$uploadfile = '/var/www/uploads/' . basename($_FILES['file_upload']['name']);
+//$uploadfile = '/var/www/uploads/' . basename($_FILES['file_upload']['name']);
+$uploadfile = basename($_FILES['file_upload']['name']);
 
 if (move_uploaded_file($_FILES['file_upload']['tmp_name'], $uploadfile)) {
-	echo "ƒtƒ@ƒCƒ‹ƒAƒbƒvƒ[ƒh¬Œ÷<br>";
+	echo "ãƒ•ã‚¡ã‚¤ãƒ«ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰æˆåŠŸ<br>";
 } else {
-	echo "ƒtƒ@ƒCƒ‹ƒAƒbƒvƒ[ƒh¸”s<br>";
+	echo "ãƒ•ã‚¡ã‚¤ãƒ«ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰å¤±æ•—<br>";
 }
 
 $filename = $_FILES['file_upload']['name'];
 
-echo "ƒtƒ@ƒCƒ‹–¼ : " . $filename;
+echo "ãƒ•ã‚¡ã‚¤ãƒ«å : " . $filename;
 
 ?>

@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <html>
 <meta http-equiv="content-type" charset="utf-8">
 	<head>
@@ -7,62 +8,64 @@
 	</head>
 	<body>
 		
-		<h1>JSでいろいろ試しています</h1>
+		<h1>JavaScriptとPHPでいろいろ試しています</h1>
 		質問や依頼は<a href="https://twitter.com/Yosshii50">Twitter(@Yosshii50)</a>まで<br>
 		<br>
 		<span style="color:#000000; background-color:#FFFF80;">実験中</span><br>
 		<ol>
-			<li><a href="js-exp/js-rpg-05.html">RPG Ver2-2</a><br>
-			<li><a href="js-exp/imp-01.html">文字入力</a><br>
-			<li><a href="js-exp/Canvas3SV.html">Canvasをサーバに送信</a><br>
-			<li>[PHP] <a href="php/post2.html">POSTでサーバに送信(XMLHttpRequest)</a><br>
-			
+			<?php $a = "js-exp/js-rpg-05.html"             ;$n="RPG Ver2-2"                                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/imp-01.html"                ;$n="文字入力"                                            ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Canvas3SV.html"             ;$n="Canvasをサーバに送信"                                ;include('php/li.php'); ?>
+			<?php $a = "php/post2.html"               ;$n="POSTでサーバに送信(XMLHttpRequest)" ;$p = "php/post2.php" ;include('php/lp.php'); ?>
 		</ol>
 		<br>
 		<span style="color:#000000; background-color:#FFFF80;">実験からできたもの</span><br>
 		<ol>
-			<li><a href="js-exp/GradationColor.html">グラデーションを生成</a><br>
-			<li><a href="js-exp/ColorChange.html">マウスが無くなったらゆっくり消える</a><br>
-			<li><a href="js-exp/Calendar.html">カレンダー</a><br>
-			<li><a href="js-exp/test11_scrollbar.html">スクロールバーを作ってみた</a><br>
-			<li><a href="js-exp/ComboBoxText_Wareki.html">コンボボックスの実験３(和暦変換)</a><br>
-			<li><a href="js-exp/GradationMergeScroll2.html">グラデーションから色情報取得</a><br>
+			<?php $a = "js-exp/GradationColor.html"        ;$n="グラデーションを生成"                                ;include('php/li.php'); ?>
+			<?php $a = "js-exp/ColorChange.html"           ;$n="マウスが無くなったらゆっくり消える"                  ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Calendar.html"              ;$n="カレンダー"                                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test11_scrollbar.html"      ;$n="スクロールバーを作ってみた"                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/ComboBoxText_Wareki.html"   ;$n="コンボボックスの実験３(和暦変換)"                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/GradationMergeScroll2.html" ;$n="グラデーションから色情報取得"                        ;include('php/li.php'); ?>
 		</ol>
 		<br>
 		
 		<span style="color:#000000; background-color:#FFFF80;">過去の実験</span><br>
 		<ol>
-			<li><a href="js-exp/AutoExec.html">自動で文字を表示</a> <a href="php/code.php?a=../js-exp/AutoExec.html"   >Code</a><br>
-			<li><a href="js-exp/Camera-Test.html">カメラ動作確認用</a><br>
-			<li><a href="js-exp/Canvas.html">Canvasで四角表示</a><br>
-			<li><a href="js-exp/Canvas2.html">Canvasを全面表示</a><br>
-			<li><a href="js-exp/Canvas3.html">Canvasを一部に表示</a><br>
-			<li><a href="js-exp/CSS_Sample.html">スタイルシートの実験</a><br>
-			<li><a href="js-exp/StyleSheetEmbedded.html">スタイルシートの実験2</a><br>
-			<li><a href="js-exp/Class.html">クラスの実験</a><br>
-			<li><a href="js-exp/ComboBox.html">コンボボックスの実験１(選択のみ)</a><br>
-			<li><a href="js-exp/ComboBoxText.html">コンボボックスの実験２</a><br>
-			<li><a href="js-exp/test9_click.html">マウスで移動させる実験(マウスの中心に移動してしまう)</a><br>
-			<li><a href="js-exp/test9_Move.html">スクロールバーを作ってる途中(バグのまま)</a><br>
-			<li><a href="js-exp/test8_navigator.html">クライアントの情報表示</a><br>
-			<li><a href="js-exp/test6_date.html">現在時刻表示</a><br>
-			<li><a href="js-exp/Color2RGB.html">文字の色種類から色コードを取得</a><br>
-			<li><a href="js-exp/DropDown.html">文字が落ちる演出</a><br>
-			<li><a href="js-exp/Frame.html">HTMLの[frameset]を使ってみた</a><br>
-			<li><a href="js-exp/GradationLine.html">グラデーション描画</a><br>
-			<li><a href="js-exp/GradationMerge.html">グラデーション描画の結合</a><br>
-			<li><a href="js-exp/GradationMergeScroll.html">グラデーション描画の結合２</a><br>
-			<li><a href="js-exp/InputBox.html">文字入力</a><br>
-			<li><a href="js-exp/SimpleSample.html">自動実行</a><br>
-			<li><a href="js-exp/test10_TextChg.html">文字を変える実験</a><br>
-			<li><a href="js-exp/test2_prompt.html">ImputBox入力</a><br>
-			<li><a href="js-exp/test3.html">マウスを重ねると内容が変わる</a><br>
-			<li><a href="js-exp/test7_string.html">JSからいろんな文字表示</a><br>
-			<li><a href="js-exp/oekaki.html">お絵かき</a><br>
-			<li><a href="js-exp/js-rpg-03.html">RPG Ver1-3</a> / <a href="js-exp/js-rpg-02.html">Ver1-2</a> / <a href="js-exp/js-rpg-01.html">Ver1-1</a><br>
-			<li><a href="js-exp/js-rpg-04.html">RPG Ver2-1</a><br>
-			<li>[PHP] <a href="php/post.html">POSTでサーバに送信</a><br>
-			<li>[PHP] <a href="php/code.php?a=code.php">コードをそのまま表示</a><br>
+			<?php $a = "js-exp/AutoExec.html"              ;$n="自動で文字を表示"                                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Camera-Test.html"           ;$n="カメラ動作確認用"                                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Canvas.html"                ;$n="Canvasで四角表示"                                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Canvas2.html"               ;$n="Canvasを全面表示"                                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Canvas3.html"               ;$n="Canvasを一部に表示"                                  ;include('php/li.php'); ?>
+			<?php $a = "js-exp/CSS_Sample.html"            ;$n="スタイルシートの実験"                                ;include('php/li.php'); ?>
+			<?php $a = "js-exp/StyleSheetEmbedded.html"    ;$n="スタイルシートの実験2"                               ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Class.html"                 ;$n="クラスの実験"                                        ;include('php/li.php'); ?>
+			<?php $a = "js-exp/ComboBox.html"              ;$n="コンボボックスの実験１(選択のみ)"                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/ComboBoxText.html"          ;$n="コンボボックスの実験２"                              ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test9_click.html"           ;$n="マウスで移動させる実験(マウスの中心に移動してしまう)";include('php/li.php'); ?>
+			<?php $a = "js-exp/test9_Move.html"            ;$n="スクロールバーを作ってる途中(バグのまま)"            ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test8_navigator.html"       ;$n="クライアントの情報表示"                              ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test6_date.html"            ;$n="現在時刻表示"                                        ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Color2RGB.html"             ;$n="文字の色種類から色コードを取得"                      ;include('php/li.php'); ?>
+			<?php $a = "js-exp/DropDown.html"              ;$n="文字が落ちる演出"                                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/Frame.html"                 ;$n="HTMLの[frameset]を使ってみた"                        ;include('php/li.php'); ?>
+			<?php $a = "js-exp/GradationLine.html"         ;$n="グラデーション描画"                                  ;include('php/li.php'); ?>
+			<?php $a = "js-exp/GradationMerge.html"        ;$n="グラデーション描画の結合"                            ;include('php/li.php'); ?>
+			<?php $a = "js-exp/GradationMergeScroll.html"  ;$n="グラデーション描画の結合２"                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/InputBox.html"              ;$n="文字入力"                                            ;include('php/li.php'); ?>
+			<?php $a = "js-exp/SimpleSample.html"          ;$n="自動実行"                                            ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test10_TextChg.html"        ;$n="文字を変える実験"                                    ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test2_prompt.html"          ;$n="ImputBox入力"                                        ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test3.html"                 ;$n="マウスを重ねると内容が変わる"                        ;include('php/li.php'); ?>
+			<?php $a = "js-exp/test7_string.html"          ;$n="JSからいろんな文字表示"                              ;include('php/li.php'); ?>
+			<?php $a = "js-exp/oekaki.html"                ;$n="お絵かき"                                            ;include('php/li.php'); ?>
+			<?php $a = "js-exp/js-rpg-03.html"             ;$n="RPG Ver1-3"                                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/js-rpg-02.html"             ;$n="RPG Ver1-2"                                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/js-rpg-01.html"             ;$n="RPG Ver1-1"                                          ;include('php/li.php'); ?>
+			<?php $a = "js-exp/js-rpg-04.html"             ;$n="RPG Ver2-1"                                          ;include('php/li.php'); ?>
+			<?php $a = "php/post.html"                     ;$n="POSTでサーバに送信"        ;$p = "php/post.php"      ;include('php/lp.php'); ?>
+			<?php $a = "php/code.php?a=code.php"           ;$n="コードをそのまま表示"      ;$p = "php/code.php"      ;include('php/lp.php'); ?>
+			<?php $a = "php/path.html"                     ;$n="各PATH取得"                ;$p = ""                  ;include('php/lp.php'); ?>
 		</ol>
 		<!-- <a href="js-exp/test4_random.html">test4_random.html</a><br> -->
 		<!-- <a href="js-exp/test5_random.html">乱数の実験</a><br> -->
@@ -72,28 +75,6 @@
 		コードは<a href="https://github.com/yosshii50/JS-Test">GitHub</a>に公開しています。<br>
 		<a href="members/">会員専用ログイン</a><br>
 		<a href="admin/">管理者</a><br>
-		
-		<section id="body2" style="position:fixed; top:0; right:0;">
-
-			＜＜　広告　＞＞<br>
-			<!-- 300 x 250 -->
-
-			<a href="https://px.a8.net/svt/ejp?a8mat=3HC8BN+1SBLE+4K9C+1HMAQP" rel="nofollow">
-			<img border="0" width="300" height="250" alt="" src="https://www22.a8.net/svt/bgt?aid=210522659003&wid=001&eno=01&mid=s00000021288009006000&mc=1"></a>
-			<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=3HC8BN+1SBLE+4K9C+1HMAQP" alt="">
-			<br>
-
-			<a href="https://px.a8.net/svt/ejp?a8mat=3HC8BN+5YC2K2+4PQK+69HA9" rel="nofollow">
-			<img border="0" width="300" height="250" alt="" src="https://www22.a8.net/svt/bgt?aid=210522659360&wid=001&eno=01&mid=s00000021998001052000&mc=1"></a>
-			<img border="0" width="1" height="1" src="https://www13.a8.net/0.gif?a8mat=3HC8BN+5YC2K2+4PQK+69HA9" alt="">
-			<br>
-
-			<a href="https://px.a8.net/svt/ejp?a8mat=3HC8BN+60PSZ6+4OUM+5ZMCH" rel="nofollow">
-			<img border="0" width="300" height="250" alt="" src="https://www24.a8.net/svt/bgt?aid=210522659364&wid=001&eno=01&mid=s00000021883001006000&mc=1"></a>
-			<img border="0" width="1" height="1" src="https://www13.a8.net/0.gif?a8mat=3HC8BN+60PSZ6+4OUM+5ZMCH" alt="">
-			<br>
-
-		</section>
 
 	</body>
 </html>

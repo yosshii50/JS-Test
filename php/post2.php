@@ -1,17 +1,17 @@
 <?php
 
-// ˆêŽžƒAƒbƒvƒ[ƒhæƒtƒ@ƒCƒ‹ƒpƒX
+// ä¸€æ™‚ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰å…ˆãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹
 $file_tmp  = $_FILES["file1"]["tmp_name"];
 
-// ³Ž®•Û‘¶æƒtƒ@ƒCƒ‹ƒpƒX
+// æ­£å¼ä¿å­˜å…ˆãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹
 $file_save = "/var/www/uploads/" . $_FILES["file1"]["name"];
 
-// ƒtƒ@ƒCƒ‹ˆÚ“®
+// ãƒ•ã‚¡ã‚¤ãƒ«ç§»å‹•
 $result = @move_uploaded_file($file_tmp, $file_save);
 if ( $result === true ) {
-	echo "¬Œ÷";
+	echo "æˆåŠŸ";
 } else {
-	echo "Ž¸”s";
+	echo "å¤±æ•—";
 }
 
 ?>

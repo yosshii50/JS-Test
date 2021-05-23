@@ -18,5 +18,9 @@ echo $data;
 
 ?>
 </code></pre>
+
+<!-- CM埋め込み -->
+<?php readfile( $_SERVER['DOCUMENT_ROOT'] . '/cm.html' ); ?>
+
         </body>
 </html>

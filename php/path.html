@@ -1,0 +1,35 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>各PATH取得</title>
+		<link rel="icon" href="/favicon.ico">
+	</head>
+	<body>
+		
+<?php
+// ------------------------------------------------------------------------------------------------
+
+echo "\$_SERVER['HTTP_HOST']				→ <font color='red'>" . $_SERVER['HTTP_HOST']				. "</font><br>\n";
+echo "\$_SERVER['SERVER_NAME']				→ <font color='red'>" . $_SERVER['SERVER_NAME']			. "</font><br>\n";
+echo "\$_SERVER['DOCUMENT_ROOT']			→ <font color='red'>" . $_SERVER['DOCUMENT_ROOT']			. "</font><br>\n";
+echo "\$_SERVER['SCRIPT_FILENAME']			→ <font color='red'>" . $_SERVER['SCRIPT_FILENAME']		. "</font><br>\n";
+echo "\$_SERVER['SCRIPT_NAME']				→ <font color='red'>" . $_SERVER['SCRIPT_NAME']			. "</font><br>\n";
+echo "\$_SERVER['PHP_SELF']					→ <font color='red'>" . $_SERVER['PHP_SELF']				. "</font><br>\n";
+echo "\$_SERVER['REQUEST_URI']				→ <font color='red'>" . $_SERVER['REQUEST_URI']			. "</font><br>\n";
+echo "__FILE__								→ <font color='red'>" . __FILE__							. "</font><br>\n";
+echo "__DIR__								→ <font color='red'>" . __DIR__							. "</font><br>\n";
+echo "__LINE__								→ <font color='red'>" . __LINE__							. "</font><br>\n";
+echo "dirname(__FILE__)						→ <font color='red'>" . dirname(__FILE__)					. "</font><br>\n";
+echo "dirname(__DIR__)						→ <font color='red'>" . dirname(__DIR__)					. "</font><br>\n";
+echo "dirname(\$_SERVER['SCRIPT_NAME'])		→ <font color='red'>" . dirname($_SERVER['SCRIPT_NAME'])	. "</font><br>\n";
+echo "basename(__FILE__)					→ <font color='red'>" . basename(__FILE__)					. "</font><br>\n";
+echo "basename(__DIR__)						→ <font color='red'>" . basename(__DIR__)					. "</font><br>\n";
+echo "basename(\$_SERVER['REQUEST_URI'])	→ <font color='red'>" . basename($_SERVER['REQUEST_URI'])	. "</font><br>\n";
+
+// ------------------------------------------------------------------------------------------------
+?>
+
+	</body>
+</html>
+
+
