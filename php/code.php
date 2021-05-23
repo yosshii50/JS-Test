@@ -1,7 +1,7 @@
 <html>
 <meta http-equiv="content-type" charset="utf-8">
         <head>
-                <title>���̂܂ܕ\��</title>
+                <title>そのまま表示</title>
                 <link rel="icon" href="/favicon.ico">
         </head>
         <body>
