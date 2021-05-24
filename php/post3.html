@@ -1,0 +1,84 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>アップロード</title>
+</head>
+<body>
+
+<form id="f1">
+	<input type="file" id="file1" name="file1">
+	<button type="button" onclick="file_upload()">アップロード</button>
+</form>
+<span id="Msg1"></span><br>
+<span id="Msg2"></span><br>
+<span id="Msg3"></span><br>
+<span id="Msg4"></span><br>
+<span id="Msg5"></span><br>
+<span id="Msg6"></span><br>
+
+<script language="JavaScript">
+	
+	function file_upload()
+	{
+		
+		// XMLHttpRequestによるアップロード処理
+		var xhr = new XMLHttpRequest();
+
+		//xhr.addEventListener("progress", updateProgress);
+		document.getElementById("Msg1").innerHTML = "";
+		document.getElementById("Msg2").innerHTML = "";
+		document.getElementById("Msg3").innerHTML = "";
+		document.getElementById("Msg4").innerHTML = "";
+		document.getElementById("Msg5").innerHTML = "";
+		document.getElementById("Msg6").innerHTML = "";
+
+		// フォームデータを取得
+		var formdata = new FormData( document.getElementById('f1') );
+
+		xhr.onloadstart = function() {
+			document.getElementById("Msg1").innerHTML = "開始";
+		}
+
+		xhr.upload.onprogress = function(event) {
+			document.getElementById("Msg2").innerHTML += ".";
+
+			if (event.lengthComputable) {
+				var percentComplete = event.loaded / event.total * 100;
+				document.getElementById("Msg3").innerHTML = percentComplete + '%';
+			} else {
+				// 全サイズ不明
+			}
+
+		}
+
+		xhr.onerror = function() {
+			document.getElementById("Msg4").innerHTML = "失敗";
+		}
+
+		xhr.onload = function() {
+			document.getElementById("Msg4").innerHTML = "成功";
+		}
+
+		xhr.onloadend = function() {
+			document.getElementById("Msg5").innerHTML = "終了:" + xhr.readyState + xhr.responseText;
+		}
+		
+		xhr.open("POST", "post3.php", true);
+		xhr.send(formdata);
+		//document.getElementById("Msg6").innerHTML = xhr.responseText;
+		
+	}
+
+//	function updateProgress (oEvent) {
+//		if (oEvent.lengthComputable) {
+//			//var percentComplete = oEvent.loaded / oEvent.total * 100;
+//		} else {
+//			// 全サイズ不明
+//		}
+//		document.getElementById("Msg3").innerHTML += "a";
+//	}
+	
+</script>
+
+</body>
+</html>

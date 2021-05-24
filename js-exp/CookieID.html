@@ -1,0 +1,33 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+		<head>
+			<title>CookieID</title>
+			<link rel="icon" href="/favicon.ico">
+		</head>
+	<body>
+
+	クッキーID:<span id="Msg04"></span><br>
+	<span id="Msg01"></span>
+
+	<script language="JavaScript" src="CookieIDCls.js"></script>
+
+	<script language="JavaScript">
+		
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+			
+			// テスト用に削除
+			document.cookie = "ID=;expires=0";
+
+			document.body.addEventListener('OnCookieID',e => {
+				document.getElementById( 'Msg04' ).innerHTML = e.detail;
+			});
+
+			var CookieID = new CookieIDCls();
+			
+		}
+		
+	</script>
+	
+	</body>
+</html>

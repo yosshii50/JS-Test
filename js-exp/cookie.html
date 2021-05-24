@@ -1,0 +1,151 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>クッキー</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+
+	<div style="margin-left: 4em; text-indent: -4em;">
+	全てのクッキー<br>
+	<span id="Msg01"></span><br>
+	<button type="button" onclick="allcook()">再取得</button>
+	</div>
+
+	<div style="margin-left: 4em; text-indent: -4em;">
+	クッキーリスト<br>
+	<span id="Msg02"></span>
+	<button type="button" onclick="cooklst()">再取得</button>
+	</div>
+
+	<div style="margin-left: 4em; text-indent: -4em;">
+	クッキー作成<br>
+	<table>
+		<tr><td>キー</td><td>内容<button type="button" onclick="cookget()">取得</button></td><td>期限<button type="button" onclick="asita()">明日</button></td></tr>
+		<tr><td><input id="text001" type="text" value="a"></td>
+		    <td><input id="text002" type="text" value="b"></td>
+		    <td><input id="text003" type="text" value=""></td></tr>
+	</table>
+	<button type="button" onclick="cookadd()">作成</button>
+	<button type="button" onclick="cookdel()">削除</button>
+	<span id="Msg03"></span>
+	</div>
+
+	<div style="margin-left: 4em; text-indent: -4em;">
+	クッキーID<br>
+	<span id="Msg04"></span><br>
+	</div>
+
+	<script language="JavaScript">
+		
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+			
+			var CookieIDStr = CookieID();
+			document.getElementById( 'Msg04' ).innerHTML = CookieIDStr;
+			
+			allcook();
+			cooklst();
+		}
+		
+		function allcook() {
+			
+			//全てのcookie
+			var AllCookies = document.cookie;
+
+			document.getElementById( 'Msg01' ).innerHTML = AllCookies;
+
+		}
+		
+		function cooklst() {
+
+			// [;]で分割
+			var CookiesArray = document.cookie.split(';'); 
+			
+			document.getElementById( 'Msg02' ).innerHTML = "";
+			for( var c of CookiesArray ){
+				document.getElementById( 'Msg02' ).innerHTML += c + "<br>";
+			}
+
+		}
+
+		function cookadd() {
+			
+			var k = document.getElementById("text001").value;
+			var d = document.getElementById("text002").value;
+			var e = document.getElementById("text003").value;
+
+			if( e == '' ){
+				s = k + "=" + encodeURIComponent( d );
+			}else{
+				s = k + "=" + encodeURIComponent( d ) + ";expires=" + e;
+			}
+			document.getElementById( 'Msg03' ).innerHTML = "[" + s;
+			document.cookie = s;
+		}
+
+		function cookdel() {
+			
+			var k = document.getElementById("text001").value;
+
+			document.cookie = k + "=;max-age=0";
+		}
+
+		function asita() {
+			var DateA = new Date();
+			DateA.setDate(DateA.getDate() + 1);
+			document.getElementById("text003").value = DateA.toGMTString();
+		}
+
+		function cookget() {
+		
+			for( var c of document.cookie.split(';') ){
+				
+				var cAr = c.split('=');
+
+				if( cAr[0].trim() == document.getElementById("text001").value ){
+					document.getElementById("text002").value = cAr[1];
+					return;
+				}
+			}
+			document.getElementById("text002").value = "?";
+
+		}
+
+		function CookieID() {
+			
+			// 既存のID取得
+			var CookieIDStr = GetCookieData("ID");
+
+			if( CookieIDStr == '' ){
+				// 未設定の場合
+				// 新規ID取得
+				CookieIDStr = "NEWID";
+			}
+
+			// 新しい有効期限取得
+			var nd = new Date();
+			nd.setFullYear(nd.getFullYear() + 10);
+
+			// IDの有効期限更新
+			document.cookie = "ID=" + encodeURIComponent( CookieIDStr ) + ";expires='" + nd.toGMTString() + "'";
+
+			return CookieIDStr;
+		}
+		function GetCookieData( Name ) {
+			for( var c of document.cookie.split(';') ){
+				
+				var ca = c.split('=');
+
+				if( ca[0].trim() == Name ){
+					return ca[1];
+				}
+			}
+			return "";
+		}
+
+	</script>
+	
+	</body>
+</html>

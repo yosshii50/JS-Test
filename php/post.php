@@ -20,12 +20,14 @@ if (move_uploaded_file( $upload_temp , $uploadfile)) {
 	echo "ファイルアップロード成功<br>";
 } else {
 	echo "ファイルアップロード失敗<br>";
+	echo "アクセス権の確認<br>";
 	echo "失敗した場合、" . $upload_temp . "からも削除される<br>";
 }
 
 //$filename = $_FILES['file_upload']['name'];
 //echo "ファイル名 : " . $filename . "<br>";
 
+echo "<br>";
 if( unlink( $uploadfile ) ){
 //if( unlink( $uploadfile . "a" ) ){ // エラーテスト用
 	echo "アップロードしたファイルは削除しました<br>";
