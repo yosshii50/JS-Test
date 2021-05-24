@@ -16,15 +16,48 @@ echo "\$_SERVER['SCRIPT_FILENAME']			→ <font color='red'>" . $_SERVER['SCRIPT_
 echo "\$_SERVER['SCRIPT_NAME']				→ <font color='red'>" . $_SERVER['SCRIPT_NAME']			. "</font><br>\n";
 echo "\$_SERVER['PHP_SELF']					→ <font color='red'>" . $_SERVER['PHP_SELF']				. "</font><br>\n";
 echo "\$_SERVER['REQUEST_URI']				→ <font color='red'>" . $_SERVER['REQUEST_URI']			. "</font><br>\n";
-echo "__FILE__								→ <font color='red'>" . __FILE__							. "</font><br>\n";
-echo "__DIR__								→ <font color='red'>" . __DIR__							. "</font><br>\n";
-echo "__LINE__								→ <font color='red'>" . __LINE__							. "</font><br>\n";
-echo "dirname(__FILE__)						→ <font color='red'>" . dirname(__FILE__)					. "</font><br>\n";
-echo "dirname(__DIR__)						→ <font color='red'>" . dirname(__DIR__)					. "</font><br>\n";
-echo "dirname(\$_SERVER['SCRIPT_NAME'])		→ <font color='red'>" . dirname($_SERVER['SCRIPT_NAME'])	. "</font><br>\n";
-echo "basename(__FILE__)					→ <font color='red'>" . basename(__FILE__)					. "</font><br>\n";
-echo "basename(__DIR__)						→ <font color='red'>" . basename(__DIR__)					. "</font><br>\n";
-echo "basename(\$_SERVER['REQUEST_URI'])	→ <font color='red'>" . basename($_SERVER['REQUEST_URI'])	. "</font><br>\n";
+echo "\$_SERVER['HTTP']						→ <font color='red'>" . sv_datachk('HTTP')					. "</font><br>\n";
+echo "\$_SERVER['HTTPS']					→ <font color='red'>" . sv_datachk('HTTPS')				. "</font><br>\n";
+//echo "dirname(\$_SERVER['SCRIPT_NAME'])		→ <font color='red'>" . dirname($_SERVER['SCRIPT_NAME'])	. "</font><br>\n";
+//echo "basename(\$_SERVER['REQUEST_URI'])	→ <font color='red'>" . basename($_SERVER['REQUEST_URI'])	. "</font><br>\n";
+//echo "basename(\$_SERVER['HTTPS'])	→ <font color='red'>" . sv_datachk('HTTPS')	. "</font><br>\n";
+//echo "basename(\$_SERVER['HTTPS'])	→ <font color='red'>" . sv_datachk('HTTPS')	. "</font><br>\n";
+//echo "basename(\$_SERVER['HTTP'])			→ <font color='red'>" . echo_dataout( basename($_SERVER['HTTP']) )			. "</font><br>\n";
+//echo "basename(\$_SERVER['HTTPS'])			→ <font color='red'>" . basename($_SERVER['HTTPS'])		. "</font><br>\n";
+
+
+echo "<br>\n";
+echo_dataout( "__FILE__" , __FILE__ );
+//echo "__FILE__								→ <font color='red'>" . __FILE__							. "</font><br>\n";
+//echo "dirname( __FILE__ )					→ <font color='red'>" . dirname( __FILE__ )				. "</font><br>\n";
+//echo "basename( __FILE__ )					→ <font color='red'>" . basename( __FILE__ )				. "</font><br>\n";
+echo "<br>\n";
+echo_dataout( "__DIR__" , __DIR__ );
+//echo "__DIR__								→ <font color='red'>" . __DIR__							. "</font><br>\n";
+//echo "dirname( __DIR__ )					→ <font color='red'>" . dirname( __DIR__ )					. "</font><br>\n";
+//echo "basename( __DIR__ )					→ <font color='red'>" . basename( __DIR__ )				. "</font><br>\n";
+echo "<br>\n";
+echo_dataout( "__LINE__" , __LINE__ );
+//echo "__LINE__								→ <font color='red'>" . __LINE__							. "</font><br>\n";
+
+// ------------------------------------------------------------------------------------------------
+
+
+// if (empty($_SERVER['HTTPS'])) {
+
+function sv_datachk( $name ){
+	if( empty( $_SERVER[$name] ) ){
+		return 'empty';
+	} else {
+		return $_SERVER[$name];
+	}
+}
+
+function echo_dataout( $name , $data ){
+	echo $name . " → <font color='red'>" . $data . "</font><br>\n";
+	echo "dirname( " . $name . " ) → <font color='red'>" . dirname( $data ) . "</font><br>\n";
+	echo "basename( " . $name . " ) → <font color='red'>" . basename( $data ) . "</font><br>\n";
+}
 
 // ------------------------------------------------------------------------------------------------
 ?>
