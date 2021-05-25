@@ -1,5 +1,5 @@
 <?php
 
-echo "aassa";
+echo 'A001';
 
 ?>

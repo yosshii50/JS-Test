@@ -1,0 +1,37 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+		<head>
+			<title>MySQL</title>
+			<link rel="icon" href="/favicon.ico">
+		</head>
+	<body>
+
+	<span id="Msg01"></span><br>
+
+	<script language="JavaScript">
+		
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+			
+			document.body.addEventListener('MySQLSELECT',e => {
+				document.getElementById( 'Msg01' ).innerHTML = e.detail;
+			});
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST','MySQL.php');
+			xhr.send();
+			xhr.onreadystatechange = function(e){
+				if ((xhr.readyState == 4) && (xhr.status == 200)) {
+					
+					// CookieID取得完了イベント実行
+					document.body.dispatchEvent(new CustomEvent('MySQLSELECT', { detail : xhr.responseText }));
+
+				}
+			};
+			
+		}
+		
+	</script>
+	
+	</body>
+</html>
