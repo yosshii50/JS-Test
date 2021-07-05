@@ -37,10 +37,12 @@
 	<script language="JavaScript" src="https://ajesta.work/js-exp/regular.js"></script>
 	<script language="JavaScript" src="onkeyscan.js"></script>
 	<script language="JavaScript" src="rpg-fullmap.js"></script>
+	<script language="JavaScript" src="js_rpg_05_mouse.js"></script>
 
 	<script language="JavaScript">
 		// src="https://ajesta.work/js-rpg/regular.js">
 		
+		var rect_emtW = document.getElementById("GrMainCanvasID"   );
 		var rect_ctxW = document.getElementById("GrMainCanvasID"   ).getContext("2d");
 		var rect_ctx0 = document.getElementById("GrDebugCanvasID"  ).getContext("2d");
 		var rect_ctx2 = document.getElementById("GrFullMapCanvasID").getContext("2d");
@@ -81,6 +83,80 @@
 		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
 		function DOMContentLoaded_Exec() {
 		//function AutoExecFunction() {
+			
+			// ペイント領域
+			var EmtDrw = document.getElementById("GrFullMapCanvasID");
+			MainPaint = new PaintCls( EmtDrw );
+			MainPaint.CtxDrw.strokeStyle = "rgba(  0,  0,  0,1.0)"; // 線の色
+			MainPaint.CtxDrw.fillStyle   = "rgba( 64,180, 64,1.0)"; // 中の色
+			MainPaint.CtxDrw.fillRect  (0 ,0, EmtDrw.getBoundingClientRect().width
+			                                , EmtDrw.getBoundingClientRect().height);
+			MainPaint.CtxDrw.strokeRect(0, 0, EmtDrw.getBoundingClientRect().width
+			                                , EmtDrw.getBoundingClientRect().height);
+
+
+			// デバッグメッセージ領域
+			rect_ctx0.strokeRect(0, 0, 320, 100); // 枠線
+			DebugMsgBoxCharPos  = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 0 );
+			DebugMsgBoxOnkey    = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 1 );
+			DebugMsgBoxInterval = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 2 );
+			DebugMsgBoxKeyT     = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 3 );
+			//DebugMsgBoxKeyU     = new DebugMsgBoxCls( rect_ctx0 , 3 , 16 + 18 * 4 );
+
+			// キー入力
+			OnKeyScan = new OnKeyScanCls( document.body );
+
+			// フルマップ
+			FullMap = new FullMapCls( rect_ctx2 , "rgba( 64,180, 64,1.0)" , 100 , 100 );
+
+			//const ImgField = new Image();
+			ImgField.src = "../rpg-img/map.png";
+			ImgField.onload = () => {
+				ImgFieldEnable=true;
+				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 0, 0,32,32);
+				//// 150,  // sx      (元画像の切り抜き始点X)
+				//// 130,  // sy      (元画像の切り抜き始点Y)
+				//// 130,  // sWidth  (元画像の切り抜きサイズ：横幅)
+				//// 180,  // sHeight (元画像の切り抜きサイズ：高さ)
+				////   0,  // dx      (Canvasの描画開始位置X)
+				////   0,  // dy      (Canvasの描画開始位置Y)
+				//// 480,  // dWidth  (Canvasの描画サイズ：横幅)
+				//// 680   // dHeight (Canvasの描画サイズ：高さ)
+				//rect_ctxW.drawImage(ImgField, 0, 0,32,32, 32, 0,32,32);
+			};
+
+			// メインキャラ
+			ImgCharMain.src = "../rpg-img/char-main.png";
+			ImgCharMain.onload = () => { ImgCharMainEnable=true; };
+
+			// メインキャラ影
+			ImgCharMainKage.src = "../rpg-img/char-main-kage.png";
+			ImgCharMainKage.onload = () => { ImgCharMainKageEnable=true; };
+
+			// document.write("aa");
+
+			for(let idx = 0; idx < MapData.length; idx++ ) {
+				MapData[idx] = new Array(1024).fill(0);
+			}
+			for(let idx = 0; idx < 100000; idx++ ) {
+				RndX = Math.round( Math.random() * 1023 );
+				RndY = Math.round( Math.random() * 1023 );
+				MapData[RndX][RndY] = 1;
+				//document.write(RndX + " " + RndY + "<BR>" );
+
+			}
+			
+			//document.write("aa");
+
+			// 初期インターバル始動
+			GblInterval = setInterval(countUp, 100);
+
+		}
+		function DOMContentLoaded_Exec() {
+		//function AutoExecFunction() {
+			
+			// マウスクリックによる移動
+			var js_rpg_05_mouse = new js_rpg_05_mouse_Cls( document.body , rect_emtW );
 
 			// デバッグメッセージ領域
 			rect_ctx0.strokeRect(0, 0, 320, 100); // 枠線
