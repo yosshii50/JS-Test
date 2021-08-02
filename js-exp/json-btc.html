@@ -7,89 +7,104 @@
 		</head>
 	<body>
 		
-		データ取得日時:[<span id="BTC-updated">????</span>]<br>
-		<input type="text" id="BTC-rat" onkeyup="TChgUSDBTC();" > USD/BTC<br>
-		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="110" > JPY/USD<br>
+		
+		<input type="text" id="BTC-rat" onkeyup="TChgUSDBTC();" > USD/BTC ← データ取得日時:[<span id="BTC-updated">????</span>]<br>
+		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="110" > JPY/USD ← 手入力で変更してください <a href="https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY" target="_blank">参照</a><br>
 		<input type="text" id="BTC-Val" onkeyup="TChgBTC();" > BTC<br>
 		<input type="text" id="SAT-Val" onkeyup="TChgSat();" > Sats<br>
 		<input type="text" id="JPY-Val" onkeyup="TChgJpy();" > 円<br>
 		<br>
+		<a href="/">トップに戻る</a><br>
+		<br>
+		為替情報を自動取得したい、無料のAPI無いかな・・・。<br>
+
 
 	<script language="JavaScript">
 		
-		let Xhr = new XMLHttpRequest();
+		// BTC価格情報取得
+		GetBTCInfo();
 
-		Xhr.open('GET', "https://api.coindesk.com/v1/bpi/currentprice.json");
-		Xhr.onload = () => {
+		// BTC価格情報取得
+		function GetBTCInfo() {
 
-			let ResJson = JSON.parse(Xhr.response);
-			document.getElementById("BTC-updated").innerHTML = ResJson.time.updated;
-			document.getElementById("BTC-rat").value = ResJson.bpi.USD.rate;
-			//document.write(ResJson.bpi.USD.rate + " ");
-			//document.write(ResJson.bpi.USD.code + "/");
-			//document.write(ResJson.chartName + "<br><br>");
-			//document.write(ResJson.bpi.USD.rate_float + "<br>");
+			var Xhr = new XMLHttpRequest();
+			Xhr.open('GET', "https://api.coindesk.com/v1/bpi/currentprice.json");
+			Xhr.onload = () => {
+
+				let ResJson = JSON.parse(Xhr.response);
+				document.getElementById("BTC-updated").innerHTML = ResJson.time.updated;
+				document.getElementById("BTC-rat").value = ResJson.bpi.USD.rate;
+
+			}
+			Xhr.send();
 		}
-		Xhr.send();
-
+		
+		// FX価格情報取得
+		// https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY
+		// ここから自動取得したい
+	
 		// [BTC]入力時
 		function TChgBTC() {
-			//document.getElementById("GET-BTC").innerHTML = document.getElementById("BTC-Val").value;
-			//document.getElementById("GET-Sat").innerHTML = (Number( document.getElementById("BTC-Val").value.replace(',','') ) * 100000000).toLocaleString( undefined, { maximumFractionDigits: 20 });
-			var WrkBTC = document.getElementById("BTC-Val").value; 
-			WrkBTC = WrkBTC.replace(',',''); // カンマ消す
-			var WrkNum = Number( WrkBTC ) ; // 数字に変換
+			var WrkNum = GetTxtBox2Num( "BTC-Val" );
+
 			WrkNum = WrkNum * 100000000; // 換算
 
-			var WrkStr = WrkNum.toLocaleString()  ; // 表示用に変換
-			// .toLocaleString( undefined, { maximumFractionDigits: 20 })
-
-			document.getElementById("SAT-Val").value = WrkStr;
-
-			SAT2JPY( WrkNum );
-
+			// Sats表示
+			document.getElementById("SAT-Val").value = GetNum2ViewStrN( WrkNum );
+			// JPY表示
+			document.getElementById("JPY-Val").value = GetNum2ViewStrN( SAT2JPY( WrkNum ) );
 		}
 
 		// [Sats]入力時
 		function TChgSat() {
-			//document.getElementById("GET-Sat").innerHTML = document.getElementById("SAT-Val").value;
+			var WrkNum = GetTxtBox2Num( "SAT-Val" );
 
-			var WrkSAT = document.getElementById("SAT-Val").value; 
-			WrkSAT = WrkSAT.replace(',',''); // カンマ消す
-
-			var WrkNum = Number( WrkSAT ) ; // 数字に変換
 			WrkNum = WrkNum * 0.00000001; // 換算
 			
-			var WrkStr = WrkNum.toLocaleString( undefined, { maximumFractionDigits: 20 })  ; // 表示用に変換
-			// .toLocaleString( undefined, { maximumFractionDigits: 20 })
-
-			document.getElementById("BTC-Val").value = WrkStr;
-			
-			SAT2JPY( WrkNum * 100000000 );
-
+			// BTC表示
+			document.getElementById("BTC-Val").value = GetNum2ViewStrB( WrkNum );
+			// JPY表示
+			document.getElementById("JPY-Val").value = GetNum2ViewStrN( SAT2JPY( WrkNum * 100000000 ) );
 		}
 
+		// [JPY]入力時
+		function TChgJpy() {
+			var WrkJPY = GetTxtBox2Num( "JPY-Val" );
+			var ratBTC = GetTxtBox2Num( "BTC-rat" );
+			var ratJPY = GetTxtBox2Num( "JPY-rat" );
+			
+			// JPYをBTCに換算
+			var WrkNum = WrkJPY / ratJPY / ratBTC ;
+			
+			// BTC表示
+			document.getElementById("BTC-Val").value = GetNum2ViewStrB( WrkNum );
+			// Sats表示
+			document.getElementById("SAT-Val").value = GetNum2ViewStrN( WrkNum * 100000000 );
+		}
+
+		// SatsをJPYに変換
 		function SAT2JPY( WrkSAT ){
-			
-			var BTCrat = document.getElementById("BTC-rat").value; 
-			BTCrat = BTCrat.replace(',',''); // カンマ消す
-			var ratNum = Number( BTCrat ) ; // 数字に変換
-			
-			ratNum = ratNum * WrkSAT * 0.00000001 ; // 換算
-
-			var JPYrat = document.getElementById("JPY-rat").value; 
-			JPYrat = JPYrat.replace(',',''); // カンマ消す
-			var ratJPY = Number( JPYrat ) ; // 数字に変換
-
-			ratNum = ratNum * ratJPY ; // 換算
-
-			var WrkStr = ratNum.toLocaleString()  ; // 表示用に変換
-
-			document.getElementById("JPY-Val").value = WrkStr;
-
+			var ratBTC = GetTxtBox2Num( "BTC-rat" );
+			var ratJPY = GetTxtBox2Num( "JPY-rat" );
+			return ratJPY * ratBTC * WrkSAT * 0.00000001 ; // 換算
 		}
 
+		// ElementIdから数字に変換
+		function GetTxtBox2Num( WrkElementId ){
+			var WrkStr = document.getElementById( WrkElementId ).value; 
+			WrkStr = WrkStr.replace(/,/g,''); // カンマ消す
+			return Number( WrkStr ); // 数字に変換
+		}
 
+		// 数字を表示用文字列に変換
+		function GetNum2ViewStrN( WrkNum ){
+			var WrkStr = WrkNum.toLocaleString();
+			return WrkStr;
+		}
+		function GetNum2ViewStrB( WrkNum ){
+			var WrkStr = WrkNum.toLocaleString( undefined, { maximumFractionDigits: 20 });
+			return WrkStr;
+		}
 
 	</script>
 	
