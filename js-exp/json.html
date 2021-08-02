@@ -1,0 +1,31 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>JSでJSON取得 - 実験サイト</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+
+	<script language="JavaScript">
+		
+		let Xhr = new XMLHttpRequest();
+
+		Xhr.open('GET', "https://api.coindesk.com/v1/bpi/currentprice.json");
+
+		Xhr.onload = () => {
+
+			let ResJson = JSON.parse(Xhr.response);
+			document.write(ResJson.time.updated + " ← 日時<br><br>");
+			document.write(ResJson.bpi.USD.rate + " ");
+			document.write(ResJson.bpi.USD.code + "/");
+			document.write(ResJson.chartName + "<br><br>");
+			document.write(ResJson.bpi.USD.rate_float + "<br>");
+		}
+
+		Xhr.send();
+
+	</script>
+	
+	</body>
+</html>
