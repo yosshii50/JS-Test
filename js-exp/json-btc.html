@@ -7,8 +7,10 @@
 		</head>
 	<body>
 		
-		
-		<input type="text" id="BTC-rat" onkeyup="TChgUSDBTC();" > USD/BTC ← データ取得日時:[<span id="BTC-updated">????</span>]<br>
+		<input type="text" id="BTC-rat" onkeyup="TChgUSDBTC();" > USD/BTC 
+			← データ取得日時:[<span id="BTC-updated">????</span>]
+			<a href="javascript:GetBTCInfo();">再取得</a>(<span id="GetTime"></span>)
+			<br>
 		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="110" > JPY/USD ← 手入力で変更してください <a href="https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY" target="_blank">参照</a><br>
 		<input type="text" id="BTC-Val" onkeyup="TChgBTC();" > BTC<br>
 		<input type="text" id="SAT-Val" onkeyup="TChgSat();" > Sats<br>
@@ -16,6 +18,7 @@
 		<br>
 		<a href="/">トップに戻る</a><br>
 		<br>
+		[再取得]しても情報元が更新されないと同じ値になります。<br>
 		為替情報を自動取得したい、無料のAPI無いかな・・・。<br>
 
 
@@ -26,6 +29,9 @@
 
 		// BTC価格情報取得
 		function GetBTCInfo() {
+
+			// 処理開始時刻表示
+			document.getElementById("GetTime").innerHTML = GetTimeStr( new Date() );
 
 			var Xhr = new XMLHttpRequest();
 			Xhr.open('GET', "https://api.coindesk.com/v1/bpi/currentprice.json");
@@ -39,6 +45,13 @@
 			Xhr.send();
 		}
 		
+		// Dateから表示用時刻に変換
+		function GetTimeStr( WrkTime ){
+			return ( '0' + WrkTime.getHours()   ).slice(-2) + ':' +
+			       ( '0' + WrkTime.getMinutes() ).slice(-2) + ':' +
+			       ( '0' + WrkTime.getSeconds() ).slice(-2);
+		}
+
 		// FX価格情報取得
 		// https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY
 		// ここから自動取得したい
