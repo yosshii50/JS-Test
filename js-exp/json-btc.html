@@ -11,7 +11,7 @@
 			← データ取得日時:[<span id="BTC-updated">????</span>]
 			<a href="javascript:GetBTCInfo();">再取得</a>(<span id="GetTime"></span>)
 			<br>
-		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="110" > JPY/USD ← 手入力で変更してください <a href="https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY" target="_blank">参照</a><br>
+		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="109" > JPY/USD(<span id="JPY-updated"></span>) <a href="https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY" target="_blank">参照</a><br>
 		<input type="text" id="BTC-Val" onkeyup="TChgBTC();" > BTC<br>
 		<input type="text" id="SAT-Val" onkeyup="TChgSat();" > Sats<br>
 		<input type="text" id="JPY-Val" onkeyup="TChgJpy();" > 円<br>
@@ -19,7 +19,10 @@
 		<a href="/">トップに戻る</a><br>
 		<br>
 		[再取得]しても情報元が更新されないと同じ値になります。<br>
-		為替情報を自動取得したい、無料のAPI無いかな・・・。<br>
+
+		為替情報は古いです。無料のAPIが無かったので自作しました<br>
+		自作したWeb-APIは無料で使えますが、自己責任でお願いします。 →
+		<a href="https://html.f5.si:85/api/fx">https://html.f5.si:85/api/fx</a><br>
 
 
 	<script language="JavaScript">
@@ -53,8 +56,22 @@
 		}
 
 		// FX価格情報取得
-		// https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY
-		// ここから自動取得したい
+		GetFXInfo();
+
+		// FX価格情報取得
+		function GetFXInfo() {
+
+			var Xhr = new XMLHttpRequest();
+			Xhr.open('GET', 'https://html.f5.si:85/api/fx');
+			Xhr.onload = () => {
+
+				let ResJson = JSON.parse(Xhr.response);
+				document.getElementById("JPY-updated").innerHTML = ResJson.Date;
+				document.getElementById("JPY-rat").value = ResJson.JPY_USD;
+
+			}
+			Xhr.send();
+		}
 	
 		// [BTC]入力時
 		function TChgBTC() {

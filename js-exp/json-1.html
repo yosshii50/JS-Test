@@ -1,0 +1,49 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>json-1 - 実験サイト</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<span id="GetTime"></span>
+
+	<script language="JavaScript">
+		
+		// 同一生成元ポリシー への対応が必要
+		// クロスオリジンリソース共有/CORS(コーズ) で回避可能 Access-Control-Allow-Origin
+
+		var Xhr = new XMLHttpRequest();
+		Xhr.open('GET', 'https://html.f5.si:85/api/fx');
+		//Xhr.open('GET', 'https://html.f5.si:85/index.html');
+
+		//Xhr.onreadystatechange = function(){
+		Xhr.onload = () => {
+
+			// document.getElementById("GetTime").innerHTML = Xhr.response;
+			let ResJson = JSON.parse(Xhr.response);
+			document.getElementById("GetTime").innerHTML = ResJson.JPY_USD;
+
+			//document.getElementById("GetTime").innerHTML = 'Z' + Xhr.readyState + '/' + Xhr.status + '/' + Xhr.statusText + '/' + Xhr.response;
+
+			if(Xhr.readyState == 4 && Xhr.status == 200){
+				//document.getElementById("GetTime").innerHTML = Xhr.getAllResponseHeaders();
+				//document.getElementById("GetTime").innerHTML = Xhr.responseText;
+			}else{
+				//document.getElementById("GetTime").innerHTML = "err:"+Xhr.status;
+			}
+
+		}
+		Xhr.onerror = function() {
+			//document.getElementById("GetTime").innerHTML = 'Z' + Xhr.readyState + '/' + Xhr.status + '/' + Xhr.statusText + '/' + Xhr.response;
+			document.getElementById("GetTime").innerHTML = "Request failed";
+			//alert("Request failed");
+		};
+
+		Xhr.send();
+
+	</script>
+	
+	</body>
+</html>
