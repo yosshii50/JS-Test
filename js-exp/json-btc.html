@@ -1,12 +1,14 @@
 <html>
 	<meta http-equiv="content-type" charset="utf-8">
 	<head>
-		<title>BTC(SAT)円換算 - 実験サイト</title>
+		<title>ビットコイン(BTC/Bitcoin) - サトシ(SAT/Sats) - 円 換算</title>
 		<link rel="icon" href="/favicon.ico">
 		<meta http-equiv="Expires" content="0">
 		</head>
 	<body>
 		
+		<h1>ビットコイン(BTC/Bitcoin) - サトシ(SAT/Sats) - 円 換算</h1>
+
 		<input type="text" id="BTC-rat" onkeyup="TChgUSDBTC();" > USD/BTC 
 			← データ取得日時:[<span id="BTC-updated">????</span>]
 			<a href="javascript:GetBTCInfo();">再取得</a>(<span id="GetTime"></span>)
@@ -16,10 +18,32 @@
 		<input type="text" id="SAT-Val" onkeyup="TChgSat();" > Sats<br>
 		<input type="text" id="JPY-Val" onkeyup="TChgJpy();" > 円<br>
 		<br>
+		
+		<table border="0">
+			<tr>
+				<td>
+					<a href="https://twitter.com/Yosshii50"><img src="/twitter.png" alt="Twitter" title="@Yosshii50"></a>
+				</td>
+				<td>
+					ご意見ご要望はTwitter(<a href="https://twitter.com/Yosshii50">@Yosshii50</a>)まで
+				</td>
+			</tr>
+		</table>
+		<table border="0">
+			<tr>
+				<td>
+					<a href="https://ajesta.work/js-exp/json-btc.html"><img src="json-btc.png" alt="ビットコイン(BTC/Bitcoin) - サトシ(SAT/Sats) - 円 換算" title="ビットコイン(BTC/Bitcoin) - サトシ(SAT/Sats) - 円 換算"></a>
+				</td>
+				<td>
+					このページのQRコード
+				</td>
+			</tr>
+		</table>
+
 		<a href="/">トップに戻る</a><br>
 		<br>
 		[再取得]しても情報元が更新されないと同じ値になります。<br>
-
+		<br>
 		為替情報は古いです。無料のAPIが無かったので自作しました<br>
 		自作したWeb-APIは無料で使えますが、自己責任でお願いします。 →
 		<a href="https://html.f5.si:85/api/fx">https://html.f5.si:85/api/fx</a><br>
@@ -34,7 +58,7 @@
 		function GetBTCInfo() {
 
 			// 処理開始時刻表示
-			document.getElementById("GetTime").innerHTML = GetTimeStr( new Date() );
+			document.getElementById("GetTime").innerHTML = GetTimeStr( new Date() ) + ' JST';
 
 			var Xhr = new XMLHttpRequest();
 			Xhr.open('GET', "https://api.coindesk.com/v1/bpi/currentprice.json");
@@ -66,7 +90,7 @@
 			Xhr.onload = () => {
 
 				let ResJson = JSON.parse(Xhr.response);
-				document.getElementById("JPY-updated").innerHTML = ResJson.Date;
+				document.getElementById("JPY-updated").innerHTML = ResJson.Date_JST + ' JST';
 				document.getElementById("JPY-rat").value = ResJson.JPY_USD;
 
 			}
@@ -128,11 +152,11 @@
 
 		// 数字を表示用文字列に変換
 		function GetNum2ViewStrN( WrkNum ){
-			var WrkStr = WrkNum.toLocaleString();
+			var WrkStr = parseInt( WrkNum , 10 ).toLocaleString();
 			return WrkStr;
 		}
 		function GetNum2ViewStrB( WrkNum ){
-			var WrkStr = WrkNum.toLocaleString( undefined, { maximumFractionDigits: 20 });
+			var WrkStr = WrkNum.toLocaleString( undefined, { maximumFractionDigits: 8 });
 			return WrkStr;
 		}
 
