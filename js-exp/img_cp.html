@@ -1,0 +1,62 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>画像をコピペ</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<div id="PasteBox" contenteditable="true">ここに画像をペースト</div>
+		↑これは div だけど span でも動く。<br>
+		<br>
+		<span id="codestep">???</span><br>
+		<br>
+		↓ ペーストした画像をここに表示 ↓<br>
+		<span id="PasteImage">???</span><br>
+
+	<script language="JavaScript">
+		
+		// 最初のフォーカスを移動
+		document.getElementById('PasteBox').focus();
+
+		// [contenteditable]でPasteが実行された時に発生するイベント
+		document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+			
+			// イベント情報取得
+			document.getElementById("codestep").innerHTML = 'A';
+			//var PasteItems = e.clipboardData.items || e.originalEvent.clipboardData.items;
+			//var PasteItems = e.originalEvent.clipboardData.items;
+			var PasteItems = e.clipboardData.items;
+			// [clipboardData]と[originalEvent.clipboardData]の違いが分からん
+
+			document.getElementById("codestep").innerHTML += 'B(' + PasteItems.length + ')';
+			for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+				// 一度ペーストした画像をさらにコピペすると２個になるので、ループで回してimageか判別する
+				// 新しくペーストすると1個に戻る
+
+				if (PasteItems[Idx].type.indexOf("image") === 0) {
+					
+					// BlobUrlに変換
+					document.getElementById("codestep").innerHTML += 'C';
+					var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+					
+					// 画像を画面に表示
+					document.getElementById("codestep").innerHTML += 'D[' + BlobUrl + ']';
+					document.getElementById("PasteImage").innerHTML = '<img src="' + BlobUrl + '">';
+					
+					// 初期値に戻す
+					document.getElementById("codestep").innerHTML += 'E';
+					document.getElementById("PasteBox").innerHTML = 'ここに画像をペースト'; // いろいろ弄れてしまうので戻しておく
+
+					// そのまま終了
+					return;
+				}
+			}
+
+		});
+
+	</script>
+	
+	</body>
+</html>

@@ -1,0 +1,60 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>画像をCanvasに入れる</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<input id="target" type="file" onchange="inputChange()">
+		<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
+		<br>
+		<span id="codestep">???</span><br>
+		<br>
+		↓ 対象画像を２倍でここに表示 ↓<br>
+		<canvas id="CanvasID" width="460" height="460"></canvas><br>
+
+	<script language="JavaScript">
+		
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+				var ctx = document.getElementById("CanvasID").getContext("2d");
+				ctx.drawImage(chara, 0, 0,  chara.naturalWidth * 2 , chara.naturalHeight * 2 );
+			};
+			
+		};
+
+		// 貼り付けからイメージ取得
+		document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+			var PasteItems = e.clipboardData.items;
+			for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+				if (PasteItems[Idx].type.indexOf("image") === 0) {
+					var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+					document.getElementById("PasteBox").innerHTML = 'ここに画像をペースト'; // いろいろ弄れてしまうので戻しておく
+
+					// 画像表示
+					ViewImage( BlobUrl );
+
+					return;
+				}
+			}
+
+		});
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>

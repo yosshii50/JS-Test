@@ -1,0 +1,43 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>ローカル画像を表示</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		「Blob URL」と「Data URI」がある。<br>
+		BlobURL：ローカルファイルのパス(←こっちを使う)<br>
+		DataURL：全データをテキスト化<br>
+		<br>
+		<input id="target" type="file" onchange="inputChange()"><br>
+		<span id="codestep">???</span><br>
+		<span id="fileimage">???</span><br>
+
+	<script language="JavaScript">
+		
+		function inputChange() {
+			document.getElementById("codestep").innerHTML = 'A';
+
+			var target_value = document.getElementById("target").value;
+			document.getElementById("codestep").innerHTML += 'B[';
+			document.getElementById("codestep").innerHTML += target_value;
+			document.getElementById("codestep").innerHTML += ']C';
+
+			var target_files0 = document.getElementById("target").files[0];
+			document.getElementById("codestep").innerHTML += 'D[';
+			document.getElementById("codestep").innerHTML += target_files0;
+
+			var BlobUrl = window.URL.createObjectURL( target_files0 ) ;
+			document.getElementById("codestep").innerHTML += ']E[';
+			document.getElementById("codestep").innerHTML += BlobUrl;
+			document.getElementById("fileimage").innerHTML = '<img src="' + BlobUrl + '">';
+			document.getElementById("codestep").innerHTML += ']F';
+			
+		}
+
+	</script>
+	
+	</body>
+</html>

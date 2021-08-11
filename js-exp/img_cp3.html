@@ -1,0 +1,87 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>画像をピクセル単位で編集</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<input id="target" type="file" onchange="inputChange()">
+		<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
+		<br>
+		<span id="codestep">???</span><br>
+		<br>
+		↓ 対象画像を編集 ↓<br>
+		<canvas id="CanvasID" width="460" height="460"></canvas><br>
+
+	<script language="JavaScript">
+		
+		// 画像編集
+		function EditImage( ctx , width , height ) {
+
+			// キャンバス全体のピクセル情報を取得
+			var imageData = ctx.getImageData(0, 0 , width , height );
+			var pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+
+			// なんかピクセルに書き込む
+			var pos = 0;
+			pixels[pos * 4 + 0] = 0;  // Red
+			pixels[pos * 4 + 1] = 0;  // Green
+			pixels[pos * 4 + 2] = 0;
+			pixels[pos * 4 + 3] = 255;  // Alpha
+
+			pos = height * (width-1) + (width-1);
+			pixels[pos * 4 + 0] = 0;  // Red
+			pixels[pos * 4 + 1] = 0;  // Green
+			pixels[pos * 4 + 2] = 0;
+			pixels[pos * 4 + 3] = 255;  // Alpha
+			
+			// 変更した内容をキャンバスに書き戻す
+			ctx.putImageData(imageData, 0, 0);
+
+		};
+
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+				var cvs = document.getElementById("CanvasID");
+				var ctx = cvs.getContext("2d");
+				ctx.drawImage(chara, 0, 0,  chara.naturalWidth * 2 , chara.naturalHeight * 2 );
+				EditImage( ctx , cvs.width , cvs.height );
+			};
+			
+		};
+
+		// 貼り付けからイメージ取得
+		document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+			var PasteItems = e.clipboardData.items;
+			for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+				if (PasteItems[Idx].type.indexOf("image") === 0) {
+					var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+					document.getElementById("PasteBox").innerHTML = 'ここに画像をペースト'; // いろいろ弄れてしまうので戻しておく
+
+					// 画像表示
+					ViewImage( BlobUrl );
+
+					return;
+				}
+			}
+
+		});
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>
