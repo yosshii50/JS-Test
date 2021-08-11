@@ -1,0 +1,131 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>ブラウン管っぽい画像に変換</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<input id="target" type="file" onchange="inputChange()">
+		<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
+		<br>
+		<span id="codestep">???</span><br>
+		<br>
+		↓ ブラウン管っぽい画像に変換 ↓<br>
+		<canvas id="CanvasID" width="460" height="460"></canvas><br>
+		<br>
+		RGBをストライプ状にしたらブラウン管っぽくなるかなとやってみたけど、想像したのと違った<br>
+		全体的に暗くなる、色情報が少なくなるからかな？<br>
+		本当は9ピクセルの平均値を使いたかったんだけどやめた。<br>
+		<br>
+		<br>
+
+	<script language="JavaScript">
+		
+		function SetPix( Pixels , PosY , PosX , width , R , G , B ) {
+			
+			var Pos = width * PosY + PosX;
+
+			Pixels[Pos * 4 + 0] = R; // R
+			Pixels[Pos * 4 + 1] = G; // G
+			Pixels[Pos * 4 + 2] = B; // B
+			Pixels[Pos * 4 + 3] = 255; // Alpha
+
+		}
+
+		//// 明るさが全体の 1/3 になるので 3倍にする
+		//function col_x3( WrkCol ) {
+		//	WrkCol = WrkCol * 1.2;
+		//	if( WrkCol > 255){
+		//		WrkCol = 255;
+		//	}
+		//	return WrkCol;
+		//}
+
+		// 画像編集
+		function EditImage( ctx , width , height ) {
+			
+			const WrkSize = 3;
+
+			//document.getElementById("codestep").innerHTML += 'C';
+			// キャンバス全体のピクセル情報を取得
+			var imageData = ctx.getImageData(0, 0 , width , height );
+			//document.getElementById("codestep").innerHTML += 'D';
+			var Pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+
+			for (var PosY = 0; PosY < height; PosY+=WrkSize ) {
+  				for (var PosX = 0; PosX < width; PosX+=WrkSize ) {
+
+					var R = Pixels[ (width * PosY + PosX) * 4 + 0 ];
+					var G = Pixels[ (width * PosY + PosX) * 4 + 1 ];
+					var B = Pixels[ (width * PosY + PosX) * 4 + 2 ];
+
+					//// 明るさが全体の 1/3 になるので 3倍にする
+					//R = col_x3( R );
+					//G = col_x3( G );
+					//B = col_x3( B );
+					// 真っ白になったwww
+
+					for (var OffY = 0; OffY < WrkSize; ++OffY ) {
+						SetPix( Pixels , PosY + OffY , PosX + 0 , width , R , 0 , 0 );
+						SetPix( Pixels , PosY + OffY , PosX + 1 , width , 0 , G , 0 );
+						SetPix( Pixels , PosY + OffY , PosX + 2 , width , 0 , 0 , B );
+					}
+
+				}
+			}
+			
+			// 変更した内容をキャンバスに書き戻す
+			ctx.putImageData(imageData, 0, 0);
+
+		};
+
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+				var cvs = document.getElementById("CanvasID");
+				var ctx = cvs.getContext("2d");
+
+				cvs.width = chara.naturalWidth ;
+				cvs.height = chara.naturalHeight ;
+
+				ctx.drawImage(chara, 0, 0 );
+
+				EditImage( ctx , cvs.width , cvs.height );
+			};
+			
+		};
+
+		// 貼り付けからイメージ取得
+		document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+			var PasteItems = e.clipboardData.items;
+			for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+				if (PasteItems[Idx].type.indexOf("image") === 0) {
+					var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+					document.getElementById("PasteBox").innerHTML = 'ここに画像をペースト'; // いろいろ弄れてしまうので戻しておく
+
+					// 画像表示
+					ViewImage( BlobUrl );
+
+					return;
+				}
+			}
+
+		});
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>
