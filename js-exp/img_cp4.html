@@ -1,7 +1,7 @@
 <html>
 	<meta http-equiv="content-type" charset="utf-8">
 	<head>
-		<title>読み込んだ画像をピクセル単位で編集</title>
+		<title>読み込んだ画像にボカシを入れる</title>
 		<link rel="icon" href="/favicon.ico">
 		<meta http-equiv="Expires" content="0">
 		</head>
@@ -11,27 +11,47 @@
 		<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
 		<br>
 		<span id="codestep">???</span><br>
+		<input type="text" id="size" value="5" ><br>
 		<br>
 		↓ 対象画像を編集 ↓<br>
 		<canvas id="CanvasID" width="460" height="460"></canvas><br>
 
 	<script language="JavaScript">
 		
+		function SetPix( Pixels , PosY , PosX , width , R , G , B ) {
+			
+			var Pos = width * PosY + PosX;
+
+			Pixels[Pos * 4 + 0] = R; // R
+			Pixels[Pos * 4 + 1] = G; // G
+			Pixels[Pos * 4 + 2] = B; // B
+			Pixels[Pos * 4 + 3] = 255; // Alpha
+
+		}
+
 		// 画像編集
 		function EditImage( ctx , width , height ) {
 
+			var WrkSize =  Number(document.getElementById('size').value);
+
+			//document.getElementById("codestep").innerHTML += 'C';
 			// キャンバス全体のピクセル情報を取得
 			var imageData = ctx.getImageData(0, 0 , width , height );
+			//document.getElementById("codestep").innerHTML += 'D';
 			var Pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
 
-			for (var PosY = 0; PosY < height; PosY+=3 ) {
-  				for (var PosX = 0; PosX < width; PosX+=3 ) {
+			for (var PosY = 0; PosY < height; PosY+=WrkSize ) {
+  				for (var PosX = 0; PosX < width; PosX+=WrkSize ) {
 
-					var Pos = width * PosY + PosX;
-					Pixels[Pos * 4 + 0] = 0; // R
-					Pixels[Pos * 4 + 1] = 0; // G
-					Pixels[Pos * 4 + 2] = 0; // B
-					Pixels[Pos * 4 + 3] = 255; // Alpha
+					var R = Pixels[ (width * PosY + PosX) * 4 + 0 ];
+					var G = Pixels[ (width * PosY + PosX) * 4 + 1 ];
+					var B = Pixels[ (width * PosY + PosX) * 4 + 2 ];
+
+					for (var OffY = 0; OffY < WrkSize; ++OffY ) {
+						for (var OffX = 0; OffX < WrkSize; ++OffX ) {
+							SetPix( Pixels , PosY + OffY , PosX + OffX , width , R , G , B );
+						}
+					}
 
 				}
 			}
@@ -53,7 +73,8 @@
 				cvs.width = chara.naturalWidth ;
 				cvs.height = chara.naturalHeight ;
 
-				ctx.drawImage(chara, 0, 0,  chara.naturalWidth , chara.naturalHeight );
+				ctx.drawImage(chara, 0, 0 );
+
 				EditImage( ctx , cvs.width , cvs.height );
 			};
 			
