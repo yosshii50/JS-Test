@@ -1,0 +1,191 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>画像の回転</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<input id="target" type="file" onchange="inputChange()">
+		<span id="PasteBoxW" style="border:1px solid;background-color: #FFAAAA;">
+			<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
+		</span>
+		<button type="button" onclick="rotate_r()">右回転</button>
+		<button type="button" onclick="rotate_l()">左回転</button>
+		<canvas id="CanvasBaseGP" style="width:0;height:0;visibility:hidden;"></canvas>
+		<br>
+		<span id="codestep"></span><br>
+		<br>
+		<canvas id="CanvasID" width="640" height="480" style="border:1px solid;"></canvas><br>
+		<canvas id="CanvasIDx" width="640" height="480" style="border:1px solid;width:80%;height:80%;"></canvas><br>
+		<br>
+		<br>
+		<br>
+		<br>
+
+	<script language="JavaScript">
+
+		var rotateCnt = 0;
+		function rotate_r() { // 右回転
+
+			if( ++rotateCnt > 3){
+				rotateCnt = 0;
+			}
+
+			// 画像表示
+			ViewImageDraw( cvsB , cvs , ctx , rotateCnt );
+
+		}
+		function rotate_l() { // 左回転
+
+			if( --rotateCnt < 0){
+				rotateCnt = 3;
+			}
+
+			// 画像表示
+			ViewImageDraw( cvsB , cvs , ctx , rotateCnt );
+
+		}
+
+		// 画像表示
+		// RotatePtn 0:0度 1:90度 2:180度 3:270度
+		function ViewImageDraw( CvsSrc , CvsDst , CtxDst , RotatePtn ) {
+			//document.getElementById("codestep").innerHTML += 'aaa';
+
+			var SizeX = CvsSrc.width ;
+			var SizeY = CvsSrc.height;
+
+			if( ( RotatePtn % 2 ) == 0 ) {
+				// 偶数
+				// 縦横のサイズそのまま
+			} else {
+				// 奇数
+				// 縦横のサイズを逆に
+				var SizeW = SizeX;
+				SizeX = SizeY;
+				SizeY = SizeW;
+			}
+
+			//if( MaxWidth  >= SizeX
+			//  & MaxHeight >= SizeY ){
+			//} else {
+			//	SizeX  = MaxWidth;
+			//	SizeY = MaxHeight;
+			//}
+
+			CvsDst.width  = SizeX;
+			CvsDst.height = SizeY;
+
+			var AddX = 0;
+			if( RotatePtn == 1 || RotatePtn == 2 ) {
+				AddX  = SizeX ;
+			}
+
+			var AddY = 0;
+			if( RotatePtn > 1 ) {
+				AddY = SizeY;
+			}
+
+			CtxDst.setTransform(1, 0, 0, 1, AddX, AddY); //伸縮x, 傾斜y, 傾斜x, 伸縮y, 移動x, 移動y
+			CtxDst.rotate( ( RotatePtn * 90 ) * Math.PI / 180 ); //回転
+			CtxDst.drawImage(CvsSrc, 0, 0 );
+
+			document.getElementById("codestep").innerHTML += '(' + AddX + ',' + AddY + ',' + RotatePtn + ')';
+		}
+
+		var cvsB = document.getElementById("CanvasBaseGP");
+		var ctxB = cvsB.getContext("2d");
+
+		// 初期処理
+		var cvs = document.getElementById("CanvasID");
+		var ctx = cvs.getContext("2d");
+		var MaxWidth  = window.innerWidth  * 0.9 ;
+		var MaxHeight = window.innerHeight * 0.8 ;
+		cvs.width = MaxWidth;
+		cvs.height = MaxHeight;
+
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+
+				cvsB.width = chara.naturalWidth ;
+				cvsB.height = chara.naturalHeight ;
+				ctxB.drawImage(chara, 0, 0 );
+				
+				//if( MaxWidth  >= cvsB.width
+				//  & MaxHeight >= cvsB.height ){
+				//	cvs.width = cvsB.width ;
+				//	cvs.height = cvsB.height ;
+				//} else {
+				//	cvs.width = MaxWidth;
+				//	cvs.height = MaxHeight;
+				//}
+				//cvs.width = chara.naturalWidth ;
+				//cvs.height = chara.naturalHeight ;
+				document.getElementById("codestep").innerHTML += cvs.width + 'x' + cvs.height;
+				document.getElementById("codestep").innerHTML += ' / ' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
+				
+				rotateCnt = 0;
+				// 画像表示
+				ViewImageDraw( cvsB , cvs , ctx , rotateCnt );
+
+				//ctx.drawImage(chara, 0, 0 );
+				//ctx.putImageData( ctxB.getImageData(0, 0, cvsB.width, cvsB.height) , 0, 0 );
+				//document.getElementById("codestep").innerHTML += 'aaa';
+				
+				//ctx.fillStyle = "rgba(255,0,0,1)";
+  				//ctx.fillRect(0,0,10,10);
+				
+				//ctx.drawImage(cvsB, 0, 0 );
+				
+				//document.getElementById("codestep").innerHTML += 'aaa';
+
+			};
+			
+		};
+
+		// 貼り付けイベントのリスナセット
+		contenteditable_paste_addevent();
+		function contenteditable_paste_addevent() {
+			// 貼り付けからイメージ取得
+			document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+				var PasteItems = e.clipboardData.items;
+				for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+					if (PasteItems[Idx].type.indexOf("image") === 0) {
+						var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+
+						// いろいろ弄れてしまうので戻しておく
+						document.getElementById("PasteBoxW").innerHTML = '<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>';
+
+						// 連続実行しやすいようにフォーカスを移動
+						//document.getElementById('PasteBox').focus();
+						// ↑うまく動かないのでやめた
+
+						// 戻したのでリスナ再セット
+						contenteditable_paste_addevent();
+
+						// 画像表示
+						ViewImage( BlobUrl );
+
+						return;
+					}
+				}
+			});
+		}
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>

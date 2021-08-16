@@ -8,7 +8,9 @@
 	<body>
 		
 		<input id="target" type="file" onchange="inputChange()">
-		<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
+		<span id="PasteBoxW">
+			<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>
+		</span>
 		<br>
 		<span id="codestep">???</span><br>
 		<br>
@@ -100,22 +102,34 @@
 			
 		};
 
-		// 貼り付けからイメージ取得
-		document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
-			var PasteItems = e.clipboardData.items;
-			for (var Idx = 0; Idx < PasteItems.length; Idx++) {
-				if (PasteItems[Idx].type.indexOf("image") === 0) {
-					var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
-					document.getElementById("PasteBox").innerHTML = 'ここに画像をペースト'; // いろいろ弄れてしまうので戻しておく
+		// 貼り付けイベントのリスナセット
+		contenteditable_paste_addevent();
+		function contenteditable_paste_addevent() {
+			// 貼り付けからイメージ取得
+			document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+				var PasteItems = e.clipboardData.items;
+				for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+					if (PasteItems[Idx].type.indexOf("image") === 0) {
+						var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
 
-					// 画像表示
-					ViewImage( BlobUrl );
+						// いろいろ弄れてしまうので戻しておく
+						document.getElementById("PasteBoxW").innerHTML = '<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>';
 
-					return;
+						// 連続実行しやすいようにフォーカスを移動
+						//document.getElementById('PasteBox').focus();
+						// ↑うまく動かないのでやめた
+
+						// 戻したのでリスナ再セット
+						contenteditable_paste_addevent();
+
+						// 画像表示
+						ViewImage( BlobUrl );
+
+						return;
+					}
 				}
-			}
-
-		});
+			});
+		}
 		
 		// ローカルファイルからイメージ選択
 		function inputChange() {
