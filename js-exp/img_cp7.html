@@ -1,0 +1,218 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>画像に枠表示</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<input id="target" type="file" onchange="inputChange()"> <!-- ファイルから読み込み用 -->
+		<span id="PasteBoxW" style="border:1px solid;background-color: #FFAAAA;">
+			<span id="PasteBox" contenteditable="true">ここに画像をペースト</span> <!-- コピペ用 -->
+		</span>
+		<canvas id="CanvasBaseGP" style="width:0;height:0;visibility:hidden;"></canvas> <!-- 読み込んだ画像退避用Canvas、画面上には表示させない -->
+		<br>
+		<span id="codestep"></span><br>
+		Mouse X:<span id="MouseX"></span> Y:<span id="MouseY"></span> <span id="MouseClick"></span><br>
+		Size  X:<span id="SizeX" ></span> Y:<span id="SizeY" ></span><br>
+		Pos   X:<span id="PosX"  ></span> Y:<span id="PosY"  ></span><br>
+		<br>
+		<canvas class="Spacer" width= "10" height= "10" style="border:0px solid;"></canvas><br> <!-- スペーサー用Canvas -->
+		<nobr> <!-- この２個は改行させない -->
+			<canvas class="Spacer" width= "10" height= "10" style="border:0px solid;"></canvas> <!-- スペーサー用Canvas -->
+			<canvas id="CanvasID"  width="640" height="480" style="border:1px solid;"></canvas> <!-- 表示されるメインのCanvas -->
+			<canvas class="Spacer" width= "10" height= "10" style="border:0px solid;"></canvas> <!-- スペーサー用Canvas -->
+		</nobr><br>
+		<canvas class="Spacer" width= "10" height= "10" style="border:0px solid;"></canvas><br> <!-- スペーサー用Canvas -->
+		<br>
+		<br>
+		<br>
+		<br>
+
+	<script language="JavaScript">
+		
+		var CvsBaseEmt = document.getElementById("CanvasBaseGP");
+		var CvsBaseCtx = CvsBaseEmt.getContext("2d");
+
+		// 初期処理
+		var CvsViewEmt = document.getElementById("CanvasID");
+		var CvsViewCtx = CvsViewEmt.getContext("2d");
+
+		var OldPosX = -1;
+		var OldPosY = -1;
+		
+		// 最初の実行
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+
+			CvsBaseEmt.width = CvsViewEmt.width ;
+			CvsBaseEmt.height = CvsViewEmt.height ;
+
+			CvsBaseCtx.fillStyle   = "rgba(255,255,255,1.0)"; // 中の色
+			CvsBaseCtx.fillRect  (0 ,0, CvsBaseEmt.width, CvsBaseEmt.height);
+			
+			document.getElementById("SizeX").innerHTML = CvsBaseEmt.width;
+			document.getElementById("SizeY").innerHTML = CvsBaseEmt.height;
+
+		}
+
+		// マウス移動時のイベントをBODYタグに登録する
+		document.body.addEventListener("mousemove", function(e){
+			
+			// マウス位置取得
+			//var MouseX = e.pageX;  //X座標
+			//var MouseY = e.pageY;  //Y座標
+			var MouseX = e.clientX;  //X座標
+			var MouseY = e.clientY;  //Y座標
+			
+			// マウス位置表示
+			document.getElementById("MouseX").innerHTML = MouseX;
+			document.getElementById("MouseY").innerHTML = MouseY;
+
+			// 表示画像の位置取得
+			var EmtRect = CvsViewEmt.getBoundingClientRect();
+			//document.getElementById("PosX").innerHTML = EmtRect.left;
+			//document.getElementById("PosY").innerHTML = EmtRect.top;
+			
+			var PosX = Math.floor( MouseX - EmtRect.left );
+			var PosY = Math.floor( MouseY - EmtRect.top  );
+			if( PosX < 0 ){
+				PosX = 0;
+			}
+			if( PosX >= CvsViewEmt.width ){
+				PosX = CvsViewEmt.width - 1 ;
+			}
+			if( PosY < 0 ){
+				PosY = 0;
+			}
+			if( PosY >= CvsViewEmt.height ){
+				PosY = CvsViewEmt.height - 1 ;
+			}
+			document.getElementById("PosX").innerHTML = PosX;
+			document.getElementById("PosY").innerHTML = PosY;
+
+			// キャンバス全体のピクセル情報を取得
+			var imageData = CvsViewCtx.getImageData(0, 0 , CvsViewEmt.width , CvsViewEmt.height );
+			var Pixels = imageData.data;  // ピクセル配列：RGBA4要素で1ピクセル
+
+			// 前回の変更を戻す
+			if( OldPosX != -1 || OldPosY != -1 ){
+				
+				var BasePixels = CvsBaseCtx.getImageData(0, 0 , CvsBaseEmt.width , CvsBaseEmt.height ).data;
+
+				for (var WrkPosX = 0; WrkPosX < CvsViewEmt.width; WrkPosX++ ) {
+				
+					var Pos = CvsViewEmt.width * OldPosY + WrkPosX;
+					Pixels[Pos * 4 + 0] = BasePixels[Pos * 4 + 0]; // R
+					Pixels[Pos * 4 + 1] = BasePixels[Pos * 4 + 1]; // G
+					Pixels[Pos * 4 + 2] = BasePixels[Pos * 4 + 2]; // B
+					Pixels[Pos * 4 + 3] = 255; // Alpha
+				}
+
+				for (var WrkPosY = 0; WrkPosY < CvsViewEmt.height; WrkPosY++ ) {
+					
+					var Pos = CvsViewEmt.width * WrkPosY + OldPosX;
+					Pixels[Pos * 4 + 0] = BasePixels[Pos * 4 + 0]; // R
+					Pixels[Pos * 4 + 1] = BasePixels[Pos * 4 + 1]; // G
+					Pixels[Pos * 4 + 2] = BasePixels[Pos * 4 + 2]; // B
+					Pixels[Pos * 4 + 3] = 255; // Alpha
+				
+				}
+
+			}
+
+			for (var WrkPosX = 0; WrkPosX < CvsViewEmt.width; WrkPosX++ ) {
+			
+				var Pos = CvsViewEmt.width * PosY + WrkPosX;
+				Pixels[Pos * 4 + 0] = 0; // R
+				Pixels[Pos * 4 + 1] = 0; // G
+				Pixels[Pos * 4 + 2] = 0; // B
+				Pixels[Pos * 4 + 3] = 255; // Alpha
+			
+			}
+			for (var WrkPosY = 0; WrkPosY < CvsViewEmt.height; WrkPosY++ ) {
+			
+				var Pos = CvsViewEmt.width * WrkPosY + PosX;
+				Pixels[Pos * 4 + 0] = 0; // R
+				Pixels[Pos * 4 + 1] = 0; // G
+				Pixels[Pos * 4 + 2] = 0; // B
+				Pixels[Pos * 4 + 3] = 255; // Alpha
+				
+			}
+
+			// 変更した内容をキャンバスに書き戻す
+			CvsViewCtx.putImageData(imageData, 0, 0);
+
+			OldPosX = PosX;
+			OldPosY = PosY;
+
+		});
+		document.body.addEventListener("mousedown", function(e) {
+			document.getElementById("MouseClick").innerHTML = 'Click';
+		});
+		document.body.addEventListener("mouseup", function(e) {
+			document.getElementById("MouseClick").innerHTML = '';
+		});
+
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+
+				CvsBaseEmt.width = chara.naturalWidth ;
+				CvsBaseEmt.height = chara.naturalHeight ;
+				CvsBaseCtx.drawImage(chara, 0, 0 );
+				
+				//document.getElementById("codestep").innerHTML += CvsViewEmt.width + 'x' + CvsViewEmt.height;
+				//document.getElementById("codestep").innerHTML += ' / ' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
+				
+				CvsViewEmt.width  = CvsBaseEmt.width ;
+				CvsViewEmt.height = CvsBaseEmt.height;
+				CvsViewCtx.drawImage(CvsBaseEmt, 0, 0 );
+				
+				document.getElementById("SizeX").innerHTML = CvsViewEmt.width;
+				document.getElementById("SizeY").innerHTML = CvsViewEmt.height;
+		};
+			
+		};
+
+		// 貼り付けイベントのリスナセット
+		contenteditable_paste_addevent();
+		function contenteditable_paste_addevent() {
+			// 貼り付けからイメージ取得
+			document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+				var PasteItems = e.clipboardData.items;
+				for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+					if (PasteItems[Idx].type.indexOf("image") === 0) {
+						var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+
+						// いろいろ弄れてしまうので戻しておく
+						document.getElementById("PasteBoxW").innerHTML = '<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>';
+
+						// 戻したのでリスナ再セット
+						contenteditable_paste_addevent();
+
+						// 画像表示
+						ViewImage( BlobUrl );
+
+						return;
+					}
+				}
+			});
+		}
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>

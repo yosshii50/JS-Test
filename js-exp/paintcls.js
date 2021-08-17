@@ -26,8 +26,10 @@ class PaintCls {
 	
 	MouseDownEve( event , EventName ){
 		
-		this.LastPosX = event.clientX;
-		this.LastPosY = event.clientY;
+		var MousePos = this.GetMousePos();
+		
+		this.LastPosX = MousePos.x;
+		this.LastPosY = MousePos.y;
 
 		// イベント処理開始
 		this.EmtDrw.addEventListener( EventName , this.OnMouseMove );
@@ -37,6 +39,14 @@ class PaintCls {
 		// イベント処理終了
 		this.EmtDrw.removeEventListener( EventName , this.OnMouseMove );
 	}
+
+	GetMousePos() {
+		var WrkRect = this.EmtDrw.getBoundingClientRect();
+        return {
+			   x: event.clientX - WrkRect.left
+			,  y: event.clientY - WrkRect.top
+        };
+    }
 
 	OnMouseMove = (event) => {
 		
@@ -57,22 +67,24 @@ class PaintCls {
 	Painting(){
 		
 		// デバッグメッセージ表示
-		DebugMsgBoxOnkey.Write( event.clientX + " " +  event.clientY );
+		//DebugMsgBoxOnkey.Write( event.clientX + " " +  event.clientY );
 		
 		// 四角
 		//this.CtxDrw.fillStyle = "rgb(0, 0, 255)";
 		//this.CtxDrw.fillRect  (event.clientX,event.clientY,10,10);
 		//this.CtxDrw.strokeRect(event.clientX,event.clientY,10,10);
 
+		var MousePos = this.GetMousePos();
+
 		// 線
 		this.CtxDrw.moveTo( this.LastPosX , this.LastPosY ); // 始点
-		this.CtxDrw.lineTo( event.clientX , event.clientY ); // 終点
+		this.CtxDrw.lineTo( MousePos.x , MousePos.y ); // 終点
 		this.CtxDrw.strokeStyle = this.Color; // 色
 		this.CtxDrw.lineWidth = this.lineWidth; // 太さ
 		this.CtxDrw.stroke();	// 線を描画
 
-		this.LastPosX = event.clientX;
-		this.LastPosY = event.clientY;
+		this.LastPosX = MousePos.x ;
+		this.LastPosY = MousePos.y ;
 
 	}
 
