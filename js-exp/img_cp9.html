@@ -1,0 +1,602 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>回転付き画像の切り出し</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		<input id="target" type="file" onchange="inputChange()"> <!-- ファイルから読み込み用 -->
+		<span id="PasteBoxW" style="border:1px solid;background-color: #FFAAAA;">
+			<span id="PasteBox" contenteditable="true">ここに画像をペースト</span> <!-- コピペ用 -->
+		</span>
+		<button type="button" onclick="rotate_r()">右回転</button>
+		<button type="button" onclick="rotate_l()">左回転</button>
+		<canvas id="CanvasBaseGP" style="width:0;height:0;visibility:hidden;"></canvas> <!-- 読み込んだ画像退避用Canvas、画面上には表示させない -->
+		<br>
+		<span id="codestep"></span><br>
+		Mouse X:<span id="MouseX"></span> Y:<span id="MouseY"></span> <span id="MouseClick"></span><br>
+		Size  X:<span id="SizeX" ></span> Y:<span id="SizeY" ></span><br>
+		Pos   X:<span id="PosX"  ></span> Y:<span id="PosY"  ></span><br>
+		<br>
+		<canvas id="CanvasID" style="border:1px solid;"></canvas><br> <!-- 表示されるメインのCanvas -->
+		<button type="button" onclick="img_trim()">画像を切り出し</button><span id="img_trim"></span><br>
+		<canvas id="CanvasTrim"></canvas><br>
+		<br>
+		<br>
+
+	<script language="JavaScript">
+		
+		const SpacerSize = 15; // スペーサーのサイズ
+
+		var CvsBaseEmt = document.getElementById("CanvasBaseGP");
+		var CvsBaseCtx = CvsBaseEmt.getContext("2d");
+
+		// 初期処理
+		var CvsViewEmt = document.getElementById("CanvasID");
+		var CvsViewCtx = CvsViewEmt.getContext("2d");
+
+		var OldPosX = -1;
+		var OldPosY = -1;
+
+		var ClickNow  = false;
+		var ClickPosX1 = -1;
+		var ClickPosX2 = -1;
+		var ClickPosY1 = -1;
+		var ClickPosY2 = -1;
+		
+		// 最初の実行
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+
+			CvsBaseEmt.width  = 640;
+			CvsBaseEmt.height = 480;
+			//document.getElementById("codestep").innerHTML += CvsBaseEmt.width;
+
+			CvsBaseCtx.fillStyle   = "rgba(255,255,255,1.0)"; // 中の色
+			CvsBaseCtx.fillRect(0 ,0, CvsBaseEmt.width, CvsBaseEmt.height);
+
+			// BaseのCanvasからView用Canvasを初期化
+			InitViewCanvas( CvsBaseEmt , CvsViewEmt , CvsViewCtx );
+			
+			//document.getElementById("SizeX").innerHTML = CvsBaseEmt.width;
+			//document.getElementById("SizeY").innerHTML = CvsBaseEmt.height;
+
+			//document.getElementById("codestep").innerHTML += 'A';
+
+		}
+
+		var rotateCnt = 0;
+		function rotate_r() { // 右回転
+
+			if( ++rotateCnt > 3){
+				rotateCnt = 0;
+			}
+
+			// 画像表示
+			ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+
+			ClickNow = false;
+			ClickPosX2 = -1;
+			ClickPosY2 = -1;
+			
+		}
+		function rotate_l() { // 左回転
+
+			if( --rotateCnt < 0){
+				rotateCnt = 3;
+			}
+
+			// 画像表示
+			ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+
+			ClickNow = false;
+			ClickPosX2 = -1;
+			ClickPosY2 = -1;
+			
+		}
+
+		// 回転に応じた縦横サイズ
+		function GetCanvasSize( CanvasEmt , RotatePtn ){
+
+			var SizeX = CanvasEmt.width ;
+			var SizeY = CanvasEmt.height;
+
+			if( ( RotatePtn % 2 ) == 0 ) {
+				// 偶数
+				// 縦横のサイズそのまま
+			} else {
+				// 奇数
+				// 縦横のサイズを逆に
+				var SizeW = SizeX;
+				SizeX = SizeY;
+				SizeY = SizeW;
+			}
+
+			return {
+				   x: SizeX
+				,  y: SizeY
+			};
+		}
+
+		// 画像表示
+		// RotatePtn 0:0度 1:90度 2:180度 3:270度
+		function ViewImageDraw( CvsSrc , CvsDst , CtxDst , RotatePtn ) {
+			//document.getElementById("codestep").innerHTML += 'aaa';
+
+			// 回転に応じた縦横サイズ
+			Size = GetCanvasSize( CvsSrc , RotatePtn );
+
+			//var SizeX = CvsSrc.width ;
+			//var SizeY = CvsSrc.height;
+			//
+			//if( ( RotatePtn % 2 ) == 0 ) {
+			//	// 偶数
+			//	// 縦横のサイズそのまま
+			//} else {
+			//	// 奇数
+			//	// 縦横のサイズを逆に
+			//	var SizeW = SizeX;
+			//	SizeX = SizeY;
+			//	SizeY = SizeW;
+			//}
+
+			//if( MaxWidth  >= SizeX
+			//  & MaxHeight >= SizeY ){
+			//} else {
+			//	SizeX  = MaxWidth;
+			//	SizeY = MaxHeight;
+			//}
+
+			//CvsDst.width  = CvsSrc.width  ;
+			//CvsDst.height = CvsSrc.height ;
+			CvsDst.width  = Size.x + SpacerSize * 2 ;
+			CvsDst.height = Size.y + SpacerSize * 2 ;
+
+			// 画像コピー
+			ViewImageCopy( CvsSrc , CtxDst , RotatePtn , 0 , 0 , Size.x , Size.y , SpacerSize );
+
+
+			//var AddX = 0;
+			//if( RotatePtn == 1 || RotatePtn == 2 ) { // RotatePtn 0:0度 1:90度 2:180度 3:270度
+			//	// 90度 か 270度 の場合
+			//	AddX  = Size.x ;
+			//}
+			//
+			//var AddY = 0;
+			//if( RotatePtn > 1 ) { // RotatePtn 0:0度 1:90度 2:180度 3:270度
+			//	// 180度 か 270度 の場合
+			//	AddY = Size.y;
+			//}
+			//
+			//CtxDst.setTransform(1, 0, 0, 1, AddX + SpacerSize , AddY + SpacerSize); //伸縮x, 傾斜y, 傾斜x, 伸縮y, 移動x, 移動y
+			//CtxDst.rotate( ( RotatePtn * 90 ) * Math.PI / 180 ); //回転
+			//CtxDst.drawImage(CvsSrc , 0 , 0 );
+
+			// 枠線の描画
+			DrawFrame( CvsDst , CtxDst );
+
+			//document.getElementById("codestep").innerHTML += '(' + AddX + ',' + AddY + ',' + RotatePtn + ')';
+		}
+
+		// 画像コピー
+		function ViewImageCopy( CvsSrc , CtxDst , RotatePtn , PosX , PosY , SizeX , SizeY , AddPos ) {
+			//document.getElementById("codestep").innerHTML += '(' + SizeX + ',' + SizeY + ',' + RotatePtn + ')';
+			//document.getElementById("codestep").innerHTML += '(' + PosX + ',' + PosY + ',' + RotatePtn + ')';
+
+			var AddY = 0;
+			var AddX = 0;
+			var AddY = 0;
+			if( RotatePtn == 1 || RotatePtn == 2 ) { // RotatePtn 0:0度 1:90度 2:180度 3:270度
+				// 90度 か 270度 の場合
+				AddX = SizeX ;
+			}
+			if( RotatePtn > 1 ) { // RotatePtn 0:0度 1:90度 2:180度 3:270度
+				// 180度 か 270度 の場合
+				AddY = SizeY ;
+			}
+
+			CtxDst.setTransform(1, 0, 0, 1, AddX + AddPos , AddY + AddPos); //伸縮x, 傾斜y, 傾斜x, 伸縮y, 移動x, 移動y
+			CtxDst.rotate( ( RotatePtn * 90 ) * Math.PI / 180 ); //回転
+			//CtxDst.drawImage( CvsSrc , 0 , 0 );
+			//CtxDst.drawImage( CvsSrc , PosX , PosY , SizeX , SizeY , 0 , 0 , SizeX , SizeY );
+			CtxDst.drawImage( CvsSrc , PosX , PosY , CvsSrc.width , CvsSrc.height , 0 , 0 , CvsSrc.width , CvsSrc.height );
+
+		}
+
+		// 画像を切り出し
+		function img_trim(){
+
+			var CvsTrimEmt = document.getElementById("CanvasTrim");
+			var CvsTrimCtx = CvsTrimEmt.getContext("2d");
+			var SizeX = ClickPosX2 - ClickPosX1 + 1;
+			var SizeY = ClickPosY2 - ClickPosY1 + 1;
+
+			CvsTrimEmt.width  = SizeX;
+			CvsTrimEmt.height = SizeY;
+			//document.getElementById("img_trim").innerHTML = CvsTrimEmt.width + ',' + CvsTrimEmt.height;
+
+			var RPosX = ClickPosX1;
+			var RPosY = ClickPosY1;
+			switch( rotateCnt ){ // RotatePtn 0:0度 1:90度 2:180度 3:270度
+			case 1: // 90度
+				RPosX = ClickPosY1;
+				RPosY = CvsBaseEmt.height - ClickPosX1 - SizeX;
+				break;
+			case 2: // 180度
+				RPosX = CvsBaseEmt.width  - ClickPosX1 - SizeX;
+				RPosY = CvsBaseEmt.height - ClickPosY1 - SizeY;
+				break;
+			case 3: // 270度
+				RPosX = CvsBaseEmt.width  - ClickPosY1 - SizeY;
+				RPosY = ClickPosX1;
+				break;
+			default: // 0度
+				break;
+			}
+
+			// 画像コピー
+			////CvsTrimCtx.drawImage( CvsBaseEmt , ClickPosX1 , ClickPosY1 );
+			//CvsTrimCtx.drawImage( CvsBaseEmt , ClickPosX1 , ClickPosY1 , CvsTrimEmt.width , CvsTrimEmt.height , 0 , 0 , CvsTrimEmt.width , CvsTrimEmt.height );
+			//ViewImageCopy( CvsBaseEmt , CvsTrimCtx , rotateCnt , RPosX , RPosY , Size.x , Size.y , 0 );
+			ViewImageCopy( CvsBaseEmt , CvsTrimCtx , rotateCnt , RPosX , RPosY , SizeX , SizeY , 0 );
+			
+			//document.getElementById("img_trim").innerHTML += 'Trim. ';
+			document.getElementById("img_trim").innerHTML = '(' + rotateCnt + '/' + RPosX + ',' + RPosY + '/' + SizeX + ',' + SizeY + ')Trim. ';
+		}
+
+		function GetCvsViewPos( e ){
+
+			// マウス位置取得
+			//var MouseX = e.pageX;  //X座標
+			//var MouseY = e.pageY;  //Y座標
+			var MouseX = e.clientX;  //X座標
+			var MouseY = e.clientY;  //Y座標
+
+			// マウス位置表示
+			document.getElementById("MouseX").innerHTML = MouseX;
+			document.getElementById("MouseY").innerHTML = MouseY;
+
+			// 表示画像の位置取得
+			var CvsViewRect = CvsViewEmt.getBoundingClientRect();
+			//document.getElementById("PosX").innerHTML = EmtRect.left;
+			//document.getElementById("PosY").innerHTML = EmtRect.top;
+			
+			var PosX = Math.floor( MouseX - CvsViewRect.left - SpacerSize - 1 );
+			var PosY = Math.floor( MouseY - CvsViewRect.top  - SpacerSize - 1 );
+			if( PosX < 0 ){
+				PosX = 0;
+			}
+			if( PosX >= CvsViewEmt.width - ( SpacerSize * 2 ) ){
+				PosX =  CvsViewEmt.width - ( SpacerSize * 2 ) - 1 ;
+			}
+			if( PosY < 0 ){
+				PosY = 0;
+			}
+			if( PosY >= CvsViewEmt.height - ( SpacerSize * 2 ) ){
+				PosY =  CvsViewEmt.height - ( SpacerSize * 2 ) - 1 ;
+			}
+
+			return {
+				   x: PosX
+				,  y: PosY
+			};
+		}
+
+//		// 点のコピー
+//		function CvsCopyDot( SrcPixels , SrcX , SrcY , SrcWidthSize , DstPixels , DstX , DstY , DstWidthSize ){
+//			var Pos = SrcWidthSize * SrcY + SrcX;
+//			var RGB = {R:SrcPixels[Pos * 4 + 0]
+//			          ,G:SrcPixels[Pos * 4 + 1]
+//					  ,B:SrcPixels[Pos * 4 + 2]};
+//			CvsDrawingDot( DstPixels , DstX , DstY , DstWidthSize , RGB );
+//		}
+//
+//		// 横線のコピー
+//		function CvsCopylineHorizontal( SrcPixels , SrcX1 , SrcX2 , SrcY , SrcWidthSize , DstPixels , DstX , DstY , DstWidthSize ){
+//
+//			for (var AddPosX = 0; AddPosX < (SrcX2 - SrcX1); AddPosX++ ) {
+//				CvsCopyDot( SrcPixels , SrcX1 + AddPosX , SrcY , SrcWidthSize , DstPixels , DstX + AddPosX , DstY , DstWidthSize ); // 点のコピー
+//			}
+//
+//		}
+//
+//		// 縦線のコピー
+//		function CvsCopylineVertical( SrcPixels , SrcX , SrcY1 , SrcY2 , SrcWidthSize , DstPixels , DstX , DstY , DstWidthSize ){
+//
+//			for (var AddPosY = 0; AddPosY < (SrcY2 - SrcY1); AddPosY++ ) {
+//				CvsCopyDot( SrcPixels , SrcX , SrcY1 + AddPosY , SrcWidthSize , DstPixels , DstX , DstY + AddPosY , DstWidthSize ); // 点のコピー
+//			}
+//
+//		}
+
+		// 点の描画
+		//function CvsDrawingDot( Pixels , X , Y , WidthSize , R , G , B ){
+		function CvsDrawingDot( Pixels , X , Y , WidthSize , RGB ){
+			var Pos = WidthSize * Y + X;
+			Pixels[Pos * 4 + 0] = RGB.R; // R
+			Pixels[Pos * 4 + 1] = RGB.G; // G
+			Pixels[Pos * 4 + 2] = RGB.B; // B
+			Pixels[Pos * 4 + 3] = 255; // Alpha
+		}
+
+		// 横線の描画
+		//function CvsDrawinglineHorizontal( Pixels , X1 , X2 , Y , WidthSize , R , G , B ){
+		function CvsDrawinglineHorizontal( Pixels , X1 , X2 , Y , WidthSize , RGB ){
+
+			if( X1 > X2 ){
+				var WrkX = X1;
+				X1=X2;
+				X2=WrkX;
+			}
+
+			for (var WrkPosX = X1; WrkPosX < X2; WrkPosX++ ) {
+				//CvsDrawingDot( Pixels , WrkPosX , Y , WidthSize , R , G , B ); // 点の描画
+				CvsDrawingDot( Pixels , WrkPosX , Y , WidthSize , RGB ); // 点の描画
+			}
+
+		}
+
+		// 縦線の描画
+		//function CvsDrawinglineVertical( Pixels , X , Y1 , Y2 , WidthSize , R , G , B ){
+		function CvsDrawinglineVertical( Pixels , X , Y1 , Y2 , WidthSize , RGB ){
+
+			if( Y1 > Y2 ){
+				var WrkY = Y1;
+				Y1=Y2;
+				Y2=WrkY;
+			}
+
+			for (var WrkPosY = Y1; WrkPosY < Y2; WrkPosY++ ) {
+				//CvsDrawingDot( Pixels , X , WrkPosY , WidthSize , R , G , B ); // 点の描画
+				CvsDrawingDot( Pixels , X , WrkPosY , WidthSize , RGB ); // 点の描画
+			}
+
+		}
+
+		// ガイド線の表示
+		function DrawingGuideline( PosX , PosY ){
+
+			// キャンバス全体のピクセル情報を取得
+			var CvsViewImageData   = CvsViewCtx.getImageData(0, 0 , CvsViewEmt.width , CvsViewEmt.height );
+			var CvsViewImagePixels = CvsViewImageData.data;
+			var CvsBaseImagePixels = CvsBaseCtx.getImageData(0, 0 , CvsBaseEmt.width , CvsBaseEmt.height ).data;
+
+			// 回転に応じた縦横サイズ
+			Size = GetCanvasSize( CvsBaseEmt , rotateCnt );
+
+			// 横ガイド線の描画
+			//CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize , CvsBaseEmt.width + SpacerSize , PosY + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize , Size.x + SpacerSize , PosY + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+			
+			// 縦ガイド線の描画
+			//CvsDrawinglineVertical( CvsViewImagePixels , PosX + SpacerSize , SpacerSize , CvsBaseEmt.height + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+			CvsDrawinglineVertical( CvsViewImagePixels , PosX + SpacerSize , SpacerSize , Size.y + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+
+			if( ClickNow == true){
+				ClickPosX2 = PosX;
+				ClickPosY2 = PosY;
+			}
+			if( ClickPosX1 != -1 && ClickPosX2 != -1 ){
+				CvsDrawinglineHorizontal( CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosX2 + SpacerSize , ClickPosY1 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+				CvsDrawinglineHorizontal( CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosX2 + SpacerSize , ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+				CvsDrawinglineVertical  ( CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosY1 + SpacerSize , ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+				CvsDrawinglineVertical  ( CvsViewImagePixels , ClickPosX2 + SpacerSize , ClickPosY1 + SpacerSize , ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+			}
+
+			// 変更した内容をキャンバスに書き戻す
+			CvsViewCtx.putImageData(CvsViewImageData, 0, 0);
+
+		}
+
+		// マウス移動時のイベントをBODYタグに登録する
+		document.body.addEventListener("mousemove", function(e){
+			
+			var CvsViewPos = GetCvsViewPos( e );
+			
+			document.getElementById("PosX").innerHTML = CvsViewPos.x;
+			document.getElementById("PosY").innerHTML = CvsViewPos.y;
+
+			// 画像をコピー
+			//CvsViewCtx.drawImage( CvsBaseEmt , SpacerSize , SpacerSize );
+			ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+
+			// ガイド線の表示
+			DrawingGuideline( CvsViewPos.x , CvsViewPos.y );
+
+//			// キャンバス全体のピクセル情報を取得
+//			var CvsViewImageData   = CvsViewCtx.getImageData(0, 0 , CvsViewEmt.width , CvsViewEmt.height );
+//			var CvsViewImagePixels = CvsViewImageData.data;
+//			var CvsBaseImagePixels = CvsBaseCtx.getImageData(0, 0 , CvsBaseEmt.width , CvsBaseEmt.height ).data;
+//
+//			// ==========================================================================================================================================================================
+////			// 前回の変更を戻す
+////			if( OldPosX != -1 || OldPosY != -1 ){
+////
+////				// 横ガイド線の消去
+////				CvsCopylineHorizontal( CvsBaseImagePixels , 0 , CvsBaseEmt.width , OldPosY    , CvsBaseEmt.width 
+////					           		 , CvsViewImagePixels , SpacerSize , OldPosY + SpacerSize , CvsViewEmt.width );
+////				// 縦ガイド線の消去
+////				CvsCopylineVertical  ( CvsBaseImagePixels , OldPosX , 0 ,  CvsBaseEmt.height  , CvsBaseEmt.width 
+////					                 , CvsViewImagePixels , OldPosX + SpacerSize , SpacerSize , CvsViewEmt.width );
+////
+////			}
+//
+//			// 横ガイド線の描画
+//			//CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize , CvsBaseEmt.width + SpacerSize , CvsViewPos.y + SpacerSize , CvsViewEmt.width , 0 , 0 , 0 );
+//			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize , CvsBaseEmt.width + SpacerSize , CvsViewPos.y + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+//			
+//			// 縦ガイド線の描画
+//			//CvsDrawinglineVertical( CvsViewImagePixels , CvsViewPos.x + SpacerSize , SpacerSize , CvsBaseEmt.height + SpacerSize , CvsViewEmt.width , 0 , 0 , 0 );
+//			CvsDrawinglineVertical( CvsViewImagePixels , CvsViewPos.x + SpacerSize , SpacerSize , CvsBaseEmt.height + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+//
+//			// ==========================================================================================================================================================================
+//			// 範囲線の描画
+////			if( ClickPosX1 != -1 || ClickPosY1 != -1 ){ // 前回の変更を戻す
+////				CvsCopylineHorizontal( CvsBaseImagePixels , ClickPosX1 , ClickPosX2 , ClickPosY1 , CvsBaseEmt.width 
+////				                     , CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosY1 + SpacerSize , CvsViewEmt.width );
+////
+////			}
+//			if( ClickNow == true){
+//				ClickPosX2 = CvsViewPos.x;
+//				ClickPosY2 = CvsViewPos.y;
+//			}
+//			//document.getElementById("codestep").innerHTML = ClickPosX1 + ',' + ClickPosX2;
+//			if( ClickPosX1 != -1 && ClickPosX2 != -1 ){
+//				CvsDrawinglineHorizontal( CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosX2 + SpacerSize , ClickPosY1 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+//				CvsDrawinglineHorizontal( CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosX2 + SpacerSize , ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+//				CvsDrawinglineVertical  ( CvsViewImagePixels , ClickPosX1 + SpacerSize , ClickPosY1 + SpacerSize , ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+//				CvsDrawinglineVertical  ( CvsViewImagePixels , ClickPosX2 + SpacerSize , ClickPosY1 + SpacerSize , ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+//			}
+//
+//			// ==========================================================================================================================================================================
+//			// 変更した内容をキャンバスに書き戻す
+//			CvsViewCtx.putImageData(CvsViewImageData, 0, 0);
+
+			OldPosX = CvsViewPos.x;
+			OldPosY = CvsViewPos.y;
+
+		});
+		document.body.addEventListener("mousedown", function(e) {
+
+			var CvsViewRect = CvsViewEmt.getBoundingClientRect();
+			//var PosX = Math.floor( MouseX - CvsViewRect.left - SpacerSize - 1 );
+			//var PosY = Math.floor( MouseY - CvsViewRect.top  - SpacerSize - 1 );
+
+			if( CvsViewRect.left <= e.clientX && e.clientX <= CvsViewRect.left + CvsViewRect.width 
+			 && CvsViewRect.top  <= e.clientY && e.clientY <= CvsViewRect.top  + CvsViewRect.height ){
+				
+				var CvsViewPos = GetCvsViewPos( e );
+				
+				ClickNow = true;
+				ClickPosX1 = CvsViewPos.x;
+				ClickPosY1 = CvsViewPos.y;
+
+				document.getElementById("MouseClick").innerHTML += 'Click(' + CvsViewPos.x + '/' + CvsViewPos.y + ')';
+
+			}
+
+			//document.getElementById("MouseClick").innerHTML += ' ' + e.clientX + '/' + e.clientY + ',' + CvsViewRect.left + '/' + CvsViewRect.top + ',' + CvsViewRect.width + '/' + CvsViewRect.height ;
+		});
+		document.body.addEventListener("mouseup", function(e) {
+
+			var CvsViewRect = CvsViewEmt.getBoundingClientRect();
+			if( CvsViewRect.left <= e.clientX && e.clientX <= CvsViewRect.left + CvsViewRect.width 
+			 && CvsViewRect.top  <= e.clientY && e.clientY <= CvsViewRect.top  + CvsViewRect.height ){
+
+				var CvsViewPos = GetCvsViewPos( e );
+
+				ClickNow = false;
+				ClickPosX2 = CvsViewPos.x;
+				ClickPosY2 = CvsViewPos.y;
+
+				document.getElementById("MouseClick").innerHTML = '';
+			}
+
+		});
+
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+
+				CvsBaseEmt.width = chara.naturalWidth ;
+				CvsBaseEmt.height = chara.naturalHeight ;
+				CvsBaseCtx.drawImage(chara, 0, 0 );
+				
+				//document.getElementById("codestep").innerHTML += CvsViewEmt.width + 'x' + CvsViewEmt.height;
+				//document.getElementById("codestep").innerHTML += ' / ' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
+
+				rotateCnt = 0;
+
+				// BaseのCanvasからView用Canvasを初期化
+				InitViewCanvas( CvsBaseEmt , CvsViewEmt , CvsViewCtx );
+				
+			};
+			
+		};
+
+		// BaseのCanvasからView用Canvasを初期化
+		function InitViewCanvas( SrcEmt , DstEmt , DstCtx ) {
+			
+			DstEmt.width  = SrcEmt.width  + SpacerSize * 2 ;
+			DstEmt.height = SrcEmt.height + SpacerSize * 2 ;
+
+			//DstCtx.strokeStyle = "rgb(0,0,0)";
+		    //DstCtx.strokeRect( SpacerSize , SpacerSize , DstEmt.width - SpacerSize * 2 , DstEmt.height - SpacerSize * 2 );
+
+			// 画像をコピー
+			//DstCtx.drawImage( SrcEmt , SpacerSize , SpacerSize );
+			ViewImageDraw( SrcEmt , DstEmt , DstCtx , rotateCnt );
+
+			// 枠線の描画
+			DrawFrame( DstEmt , DstCtx );
+			//var CvsViewImageData = DstCtx.getImageData(0, 0 , CvsViewEmt.width , CvsViewEmt.height );
+			//var CvsViewImagePixels = CvsViewImageData.data;
+			//CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize - 1            , DstEmt.width - SpacerSize + 1 , SpacerSize - 1             , DstEmt.width , {R:0,G:0,B:0} ); // 上
+			//CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize - 1            , DstEmt.width - SpacerSize + 1 , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 下
+			//CvsDrawinglineVertical  ( CvsViewImagePixels , SpacerSize - 1            , SpacerSize                    , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 左
+			//CvsDrawinglineVertical  ( CvsViewImagePixels , DstEmt.width - SpacerSize , SpacerSize                    , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 右
+			//DstCtx.putImageData(CvsViewImageData, 0, 0);
+			
+			document.getElementById("SizeX").innerHTML = SrcEmt.width ;
+			document.getElementById("SizeY").innerHTML = SrcEmt.height;
+
+			OldPosX = -1;
+			OldPosY = -1;
+			ClickPosX1 = -1;
+			ClickPosX2 = -1;
+			ClickPosY1 = -1;
+			ClickPosY2 = -1;
+		}
+		function DrawFrame( DstEmt , DstCtx ) {
+			// 枠線の描画
+			var CvsViewImageData = DstCtx.getImageData(0, 0 , DstEmt.width , DstEmt.height );
+			var CvsViewImagePixels = CvsViewImageData.data;
+			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize - 1            , DstEmt.width - SpacerSize + 1 , SpacerSize - 1             , DstEmt.width , {R:0,G:0,B:0} ); // 上
+			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize - 1            , DstEmt.width - SpacerSize + 1 , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 下
+			CvsDrawinglineVertical  ( CvsViewImagePixels , SpacerSize - 1            , SpacerSize                    , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 左
+			CvsDrawinglineVertical  ( CvsViewImagePixels , DstEmt.width - SpacerSize , SpacerSize                    , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 右
+			DstCtx.putImageData(CvsViewImageData, 0, 0);
+		}
+
+		// 貼り付けイベントのリスナセット
+		contenteditable_paste_addevent();
+		function contenteditable_paste_addevent() {
+			// 貼り付けからイメージ取得
+			document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+				var PasteItems = e.clipboardData.items;
+				for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+					if (PasteItems[Idx].type.indexOf("image") === 0) {
+						var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+
+						// いろいろ弄れてしまうので戻しておく
+						document.getElementById("PasteBoxW").innerHTML = '<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>';
+
+						// 戻したのでリスナ再セット
+						contenteditable_paste_addevent();
+
+						// 画像表示
+						ViewImage( BlobUrl );
+
+						return;
+					}
+				}
+			});
+		}
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>
