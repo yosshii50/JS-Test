@@ -1,0 +1,55 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>PHPとのJSONの動作テスト</title>
+</head>
+<body>
+	
+	<button type="button" onclick="img_send()">サーバへ送信</button><br>
+	<span id="codestep"></span><br> <!-- デバッグ用の表示 -->
+	<span id="setimage"></span><br> <!-- サーバ上の画像を表示 -->
+
+	<script language="JavaScript">
+
+		// サーバへ送信
+		function img_send(){
+			document.getElementById("codestep").innerHTML += 'A';
+			
+			// XMLHttpRequestによるアップロード処理
+			var Xhr = new XMLHttpRequest();
+			Xhr.onreadystatechange = function() {
+				if (Xhr.readyState == 4 && Xhr.status == 200) {
+					// 送信成功
+					document.getElementById("setimage").innerHTML = Xhr.responseText + '<br>';
+					var RetJson = JSON.parse(Xhr.responseText);
+
+					document.getElementById("setimage").innerHTML += RetJson.DATA1 + '<br>';
+					document.getElementById("setimage").innerHTML += RetJson.DATA2 + '<br>';
+					document.getElementById("setimage").innerHTML += RetJson.a + '<br>';
+					document.getElementById("setimage").innerHTML += RetJson.b + '<br>';
+					document.getElementById("setimage").innerHTML += RetJson.c + '<br>';
+
+					document.getElementById("codestep").innerHTML += 'E';
+				}
+			};
+			document.getElementById("codestep").innerHTML += 'B';
+
+			Xhr.open("POST", "json_post.php", true);
+			Xhr.setRequestHeader("Content-type", "application/json");
+
+			var jsondat = JSON.stringify({
+				 d001: "aaa"
+				,d002: "BBB"
+			});
+			
+			document.getElementById("codestep").innerHTML += 'C';
+
+			Xhr.send(jsondat);
+
+			document.getElementById("codestep").innerHTML += 'D';
+		}
+
+	</script>
+
+</body>
+</html>

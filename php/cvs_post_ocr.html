@@ -1,0 +1,82 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Canvasの内容を別サーバにPOSTしてOCR実行</title>
+</head>
+<body>
+
+	<canvas id="CanvasID" width="640" height="96" style="border:1px solid;"></canvas><br> <!-- メインのCanvas -->
+	
+	<script language="JavaScript">
+		
+		// 自動実行
+		document.addEventListener('DOMContentLoaded', DOMContentLoaded_Exec() , false );
+		function DOMContentLoaded_Exec() {
+			
+			var CvsBaseEmt = document.getElementById('CanvasID');
+			var CvsBaseCtx = CvsBaseEmt.getContext('2d');			
+
+			// 真っ白にする
+			CvsBaseCtx.fillStyle = 'rgb(255, 255, 255)'; // 白色
+			CvsBaseCtx.fillRect(0, 0, CvsBaseEmt.width, CvsBaseEmt.height); // 塗りつぶす
+			
+			// 文字表示
+			CvsBaseCtx.font = "32px serif";
+			CvsBaseCtx.fillStyle = 'rgb(0, 0, 0)'; // 黒色
+			CvsBaseCtx.fillText("0123456789", 0, 32);
+			CvsBaseCtx.fillText("abcdefghijklmnopqrstuvwxyz", 0, 64);
+			CvsBaseCtx.fillText("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0, 96);
+			
+		}
+		
+	</script>
+	
+	<button type="button" onclick="img_send()">サーバへ送信</button><br>
+	<span id="codestep"></span><br> <!-- デバッグ用の表示 -->
+	<span id="setimage"></span><br> <!-- サーバ上の画像を表示 -->
+
+	<script language="JavaScript">
+
+		// サーバへ送信
+		function img_send(){
+			document.getElementById("codestep").innerHTML += 'A';
+			
+			var CvsBaseEmt = document.getElementById('CanvasID');
+			
+			// XMLHttpRequestによるアップロード処理
+			var Xhr = new XMLHttpRequest();
+			Xhr.onreadystatechange = function() {
+				if (Xhr.readyState == 4 && Xhr.status == 200) {
+					// 送信成功
+					//document.getElementById("codestep").innerHTML += '[' + Xhr.responseText + ']';
+					//document.getElementById("setimage").innerHTML = '<img src="https://html.f5.si:85/ocr/upload/' + Xhr.responseText + '">';
+					//document.getElementById("setimage").innerHTML = '<br>' + Xhr.responseText + '<br>';
+
+					var RetJson = JSON.parse(Xhr.responseText);
+					document.getElementById("codestep").innerHTML += '[' + RetJson.filename + ']';
+					document.getElementById("setimage").innerHTML = '<br>';
+					document.getElementById("setimage").innerHTML += '↓文字列<br>';
+					var ocrJson = JSON.parse(RetJson.ocr);
+					for (var i in ocrJson) {
+						document.getElementById("setimage").innerHTML += ocrJson[i] + '<br>';
+					}
+					document.getElementById("setimage").innerHTML += '<br>';
+					document.getElementById("setimage").innerHTML += '↓対象画像<br>';
+					document.getElementById("setimage").innerHTML += '<img src="https://html.f5.si:85/ocr/upload/' + RetJson.filename + '">';
+
+					
+				}
+			};
+			document.getElementById("codestep").innerHTML += 'B';
+
+			Xhr.open("POST", "https://html.f5.si:85/ocr/cvs_post_ocr.php", true);
+			Xhr.setRequestHeader("Content-type", "application/json");
+			Xhr.send(JSON.stringify({data: CvsBaseEmt.toDataURL("image/png")}));
+
+			document.getElementById("codestep").innerHTML += 'C';
+		}
+
+	</script>
+
+</body>
+</html>

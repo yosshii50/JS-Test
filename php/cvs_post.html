@@ -1,0 +1,82 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>Canvasの内容をPOSTでサーバに送信</title>
+</head>
+<body>
+
+	<canvas id="CanvasID" width="640" height="400"></canvas><br> <!-- メインのCanvas -->
+
+	<script language="JavaScript">
+		
+		// 自動実行
+		document.addEventListener('DOMContentLoaded', DOMContentLoaded_Exec() , false );
+		function DOMContentLoaded_Exec() {
+			
+			var CvsBaseEmt = document.getElementById('CanvasID');
+			var CvsBaseCtx = CvsBaseEmt.getContext('2d');			
+
+			// まっくろにする
+			CvsBaseCtx.fillStyle = 'rgb(0, 0, 0)'; // 黒色
+			CvsBaseCtx.fillRect(0, 0, CvsBaseEmt.width, CvsBaseEmt.height); // 塗りつぶす
+			
+			// 線表示
+			const XStep = 40; // 幅
+			CvsBaseCtx.strokeStyle = 'rgb(0, 255, 255)'; // 線の色
+			CvsBaseCtx.lineWidth = 2; // 線の太さ
+			CvsBaseCtx.beginPath(); // 開始
+			for( var WrkX1 = 0; WrkX1 <= CvsBaseEmt.width; WrkX1 += XStep ){
+				for( var WrkX2 = 0; WrkX2 <= CvsBaseEmt.width; WrkX2 += XStep ){
+					CvsBaseCtx.moveTo(WrkX1, 0                ); // 始点座標
+					CvsBaseCtx.lineTo(WrkX2, CvsBaseEmt.height); // 終点座標
+				}
+			}
+			CvsBaseCtx.stroke(); // 描画実行
+			
+		}
+		
+	</script>
+	
+	<button type="button" onclick="img_send()">サーバへ送信</button><br>
+	<span id="codestep"></span><br> <!-- デバッグ用の表示 -->
+	<span id="setimage"></span><br> <!-- サーバ上の画像を表示 -->
+
+	<script language="JavaScript">
+
+		// サーバへ送信
+		function img_send(){
+			document.getElementById("codestep").innerHTML += 'A';
+			
+			var CvsBaseEmt = document.getElementById('CanvasID');
+			var CvsBaseCtx = CvsBaseEmt.getContext('2d');
+
+			// Canvasのデータを取得
+			const CvsBaseURL = CvsBaseEmt.toDataURL("image/png");  // DataURI Schemaが返却される
+			document.getElementById("codestep").innerHTML += 'B';
+
+			var jsondat = JSON.stringify({data: CvsBaseURL});
+			document.getElementById("codestep").innerHTML += 'C';
+			
+			// XMLHttpRequestによるアップロード処理
+			var Xhr = new XMLHttpRequest();
+			Xhr.onreadystatechange = function() {
+				if (Xhr.readyState == 4 && Xhr.status == 200) {
+					// 送信成功
+					document.getElementById("codestep").innerHTML += '[' + Xhr.responseText + ']';
+					document.getElementById("setimage").innerHTML = '<img src="upload/' + Xhr.responseText + '">';
+					
+				}
+			};
+			document.getElementById("codestep").innerHTML += 'D';
+
+			Xhr.open("POST", "cvs_post.php", true);
+			Xhr.setRequestHeader("Content-type", "application/json");
+			Xhr.send(jsondat);	
+
+			document.getElementById("codestep").innerHTML += 'E';
+		}
+
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,535 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>回転と再編集とOCR付き画像の切り出し</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+		
+		OCR時に画像をサーバに送信します。<br>
+		<input id="target" type="file" onchange="inputChange()"> <!-- ファイルから読み込み用 -->
+		<span id="PasteBoxW" style="border:1px solid;background-color: #FFAAAA;">
+			<span id="PasteBox" contenteditable="true">ここに画像をペースト</span> <!-- コピペ用 -->
+		</span>
+		<button type="button" onclick="rotate_r()">右回転</button>
+		<button type="button" onclick="rotate_l()">左回転</button>
+		<canvas id="CanvasBaseGP" style="width:0;height:0;visibility:hidden;"></canvas> <!-- 読み込んだ画像退避用Canvas、画面上には表示させない -->
+		<br>
+		<span id="codestep"></span><br>
+		Mouse X:<span id="MouseX"></span> Y:<span id="MouseY"></span> <span id="MouseClick"></span><br>
+		Size  X:<span id="SizeX" ></span> Y:<span id="SizeY" ></span><br>
+		Pos   X:<span id="PosX"  ></span> Y:<span id="PosY"  ></span><br>
+		<br>
+		<canvas id="CanvasID" style="border:1px solid;"></canvas><br> <!-- 表示されるメインのCanvas -->
+		<button type="button" onclick="img_trim()">画像を切り出し</button><span id="img_trim"></span><br>
+		<table>
+			<tr>
+				<td>
+					<canvas id="CanvasTrim" style="border:1px solid;"></canvas>
+				</td>
+				<td>
+					<button type="button" onclick="img_reedit()">切り出し画像を編集</button><br>
+					<button type="button" onclick="img_ocr()">切り出し画像をOCR</button><br>
+					<span id="ocr_str"></span><br>
+				</td>
+			</tr>
+		</table>
+		<br>
+		<br>
+		<br>
+
+	<script language="JavaScript">
+		
+		const SpacerSize = 15; // スペーサーのサイズ
+
+		var CvsBaseEmt = document.getElementById("CanvasBaseGP");
+		var CvsBaseCtx = CvsBaseEmt.getContext("2d");
+
+		// 初期処理
+		var CvsViewEmt = document.getElementById("CanvasID");
+		var CvsViewCtx = CvsViewEmt.getContext("2d");
+		
+		// 最初の実行
+		document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+		function DOMContentLoaded_Exec() {
+
+			CvsBaseEmt.width  = 640;
+			CvsBaseEmt.height = 480;
+			//document.getElementById("codestep").innerHTML += CvsBaseEmt.width;
+
+			CvsBaseCtx.fillStyle   = "rgba(255,255,255,1.0)"; // 中の色
+			CvsBaseCtx.fillRect(0 ,0, CvsBaseEmt.width, CvsBaseEmt.height);
+
+			// BaseのCanvasからView用Canvasを初期化
+			InitViewCanvas( CvsBaseEmt , CvsViewEmt , CvsViewCtx );
+			
+			//document.getElementById("codestep").innerHTML += 'A';
+		}
+
+		// 切り出し画像をOCR
+		function img_ocr(){
+			
+			//document.getElementById("codestep").innerHTML += 'A';
+			var CvsTrimEmt = document.getElementById("CanvasTrim");
+
+			// XMLHttpRequestによるアップロード処理
+			var Xhr = new XMLHttpRequest();
+			Xhr.onreadystatechange = function() {
+				if (Xhr.readyState == 4 && Xhr.status == 200) {
+					// 送信成功
+
+					var RetJson = JSON.parse(Xhr.responseText);
+					document.getElementById("ocr_str").innerHTML = '';
+					var ocrJson = JSON.parse(RetJson.ocr);
+					for (var i in ocrJson) {
+						document.getElementById("ocr_str").innerHTML += ocrJson[i] + '<br>';
+					}
+
+				}
+			};
+			//document.getElementById("codestep").innerHTML += 'B';
+
+			Xhr.open("POST", "https://html.f5.si:85/ocr/cvs_post_ocr.php", true);
+			Xhr.setRequestHeader("Content-type", "application/json");
+			Xhr.send(JSON.stringify({data: CvsTrimEmt.toDataURL("image/png")}));
+
+			//document.getElementById("codestep").innerHTML += 'C';
+			
+		}
+
+		// 切り出し画像を編集
+		function img_reedit(){
+			//document.getElementById("codestep").innerHTML += 'A';
+			
+			var CvsTrimEmt = document.getElementById("CanvasTrim");
+			var CvsTrimCtx = CvsTrimEmt.getContext("2d");
+
+			var SizeX = CvsTrimEmt.width ;
+			var SizeY = CvsTrimEmt.height;
+
+			CvsBaseEmt.width  = SizeX;
+			CvsBaseEmt.height = SizeY;
+			
+			rotateCnt = 0;
+
+			// 画像コピー
+			ViewImageCopy( CvsTrimEmt , CvsBaseCtx , 0 , 0 , 0 , SizeX , SizeY , 0 );
+
+			// BaseのCanvasからView用Canvasを初期化
+			InitViewCanvas( CvsBaseEmt , CvsViewEmt , CvsViewCtx );
+			
+			// 画像をコピー
+			//ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+			
+		}
+
+		var rotateCnt = 0;
+		function rotate_r() { // 右回転
+
+			if( ++rotateCnt > 3){
+				rotateCnt = 0;
+			}
+
+			// 画像表示
+			ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+
+			CvsViewMouserPos.PosClear();
+			
+		}
+		function rotate_l() { // 左回転
+
+			if( --rotateCnt < 0){
+				rotateCnt = 3;
+			}
+
+			// 画像表示
+			ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+
+			CvsViewMouserPos.PosClear();
+			
+		}
+
+		// 回転に応じた縦横サイズ
+		function GetCanvasSize( CanvasEmt , RotatePtn ){
+
+			var SizeX = CanvasEmt.width ;
+			var SizeY = CanvasEmt.height;
+
+			if( ( RotatePtn % 2 ) == 0 ) {
+				// 偶数
+				// 縦横のサイズそのまま
+			} else {
+				// 奇数
+				// 縦横のサイズを逆に
+				var SizeW = SizeX;
+				SizeX = SizeY;
+				SizeY = SizeW;
+			}
+
+			return {
+				   x: SizeX
+				,  y: SizeY
+			};
+		}
+
+		// 画像表示
+		// RotatePtn 0:0度 1:90度 2:180度 3:270度
+		function ViewImageDraw( CvsSrc , CvsDst , CtxDst , RotatePtn ) {
+			//document.getElementById("codestep").innerHTML += 'aaa';
+
+			// 回転に応じた縦横サイズ
+			Size = GetCanvasSize( CvsSrc , RotatePtn );
+
+			CvsDst.width  = Size.x + SpacerSize * 2 ;
+			CvsDst.height = Size.y + SpacerSize * 2 ;
+
+			// 画像コピー
+			ViewImageCopy( CvsSrc , CtxDst , RotatePtn , 0 , 0 , Size.x , Size.y , SpacerSize );
+
+			// 枠線の描画
+			DrawFrame( CvsDst , CtxDst );
+
+			//document.getElementById("codestep").innerHTML += '(' + AddX + ',' + AddY + ',' + RotatePtn + ')';
+		}
+
+		// 画像コピー
+		function ViewImageCopy( CvsSrc , CtxDst , RotatePtn , PosX , PosY , SizeX , SizeY , AddPos ) {
+
+			var AddY = 0;
+			var AddX = 0;
+			var AddY = 0;
+			if( RotatePtn == 1 || RotatePtn == 2 ) { // RotatePtn 0:0度 1:90度 2:180度 3:270度
+				// 90度 か 270度 の場合
+				AddX = SizeX ;
+			}
+			if( RotatePtn > 1 ) { // RotatePtn 0:0度 1:90度 2:180度 3:270度
+				// 180度 か 270度 の場合
+				AddY = SizeY ;
+			}
+
+			CtxDst.setTransform(1, 0, 0, 1, AddX + AddPos , AddY + AddPos); //伸縮x, 傾斜y, 傾斜x, 伸縮y, 移動x, 移動y
+			CtxDst.rotate( ( RotatePtn * 90 ) * Math.PI / 180 ); //回転
+			CtxDst.drawImage( CvsSrc , PosX , PosY , CvsSrc.width , CvsSrc.height , 0 , 0 , CvsSrc.width , CvsSrc.height );
+
+		}
+
+		// 画像を切り出し
+		function img_trim(){
+
+			var CvsTrimEmt = document.getElementById("CanvasTrim");
+			var CvsTrimCtx = CvsTrimEmt.getContext("2d");
+			var SizeX = CvsViewMouserPos.ClickPosX2 - CvsViewMouserPos.ClickPosX1 + 1;
+			var SizeY = CvsViewMouserPos.ClickPosY2 - CvsViewMouserPos.ClickPosY1 + 1;
+
+			CvsTrimEmt.width  = SizeX;
+			CvsTrimEmt.height = SizeY;
+
+			var RPosX = CvsViewMouserPos.ClickPosX1;
+			var RPosY = CvsViewMouserPos.ClickPosY1;
+			switch( rotateCnt ){ // RotatePtn 0:0度 1:90度 2:180度 3:270度
+			case 1: // 90度
+				RPosX = CvsViewMouserPos.ClickPosY1;
+				RPosY = CvsBaseEmt.height - CvsViewMouserPos.ClickPosX1 - SizeX;
+				break;
+			case 2: // 180度
+				RPosX = CvsBaseEmt.width  - CvsViewMouserPos.ClickPosX1 - SizeX;
+				RPosY = CvsBaseEmt.height - CvsViewMouserPos.ClickPosY1 - SizeY;
+				break;
+			case 3: // 270度
+				RPosX = CvsBaseEmt.width  - CvsViewMouserPos.ClickPosY1 - SizeY;
+				RPosY = CvsViewMouserPos.ClickPosX1;
+				break;
+			default: // 0度
+				break;
+			}
+
+			// 画像コピー
+			ViewImageCopy( CvsBaseEmt , CvsTrimCtx , rotateCnt , RPosX , RPosY , SizeX , SizeY , 0 );
+			
+			document.getElementById("img_trim").innerHTML = '(' + rotateCnt + '/' + RPosX + ',' + RPosY + '/' + SizeX + ',' + SizeY + ')Trim. ';
+		}
+
+		// 点の描画
+		function CvsDrawingDot( Pixels , X , Y , WidthSize , RGB ){
+			var Pos = WidthSize * Y + X;
+			Pixels[Pos * 4 + 0] = RGB.R; // R
+			Pixels[Pos * 4 + 1] = RGB.G; // G
+			Pixels[Pos * 4 + 2] = RGB.B; // B
+			Pixels[Pos * 4 + 3] = 255; // Alpha
+		}
+
+		// 横線の描画
+		function CvsDrawinglineHorizontal( Pixels , X1 , X2 , Y , WidthSize , RGB ){
+
+			var X = OrderNum( X1 , X2 );
+			//if( X1 > X2 ){
+			//	var WrkX = X1;
+			//	X1=X2;
+			//	X2=WrkX;
+			//}
+
+			for (var WrkPosX = X.n1; WrkPosX < X.n2; WrkPosX++ ) {
+				CvsDrawingDot( Pixels , WrkPosX , Y , WidthSize , RGB ); // 点の描画
+			}
+
+		}
+
+		// 縦線の描画
+		function CvsDrawinglineVertical( Pixels , X , Y1 , Y2 , WidthSize , RGB ){
+
+			var Y = OrderNum( Y1 , Y2 );
+			//if( Y1 > Y2 ){
+			//	var WrkY = Y1;
+			//	Y1=Y2;
+			//	Y2=WrkY;
+			//}
+
+			for (var WrkPosY = Y.n1; WrkPosY < Y.n2; WrkPosY++ ) {
+				CvsDrawingDot( Pixels , X , WrkPosY , WidthSize , RGB ); // 点の描画
+			}
+
+		}
+
+		// 大小関係を整える
+		function OrderNum( n1 , n2 ){
+
+			if( n1 > n2 ){
+				var WrkN = n1;
+				n1=n2;
+				n2=WrkN;
+			}
+
+			return {
+				   n1: n1
+				,  n2: n2
+			};
+		}
+
+		// ガイド線の表示
+		function DrawingGuideline( PosX , PosY ){
+
+			// キャンバス全体のピクセル情報を取得
+			var CvsViewImageData   = CvsViewCtx.getImageData(0, 0 , CvsViewEmt.width , CvsViewEmt.height );
+			var CvsViewImagePixels = CvsViewImageData.data;
+			var CvsBaseImagePixels = CvsBaseCtx.getImageData(0, 0 , CvsBaseEmt.width , CvsBaseEmt.height ).data;
+
+			// 回転に応じた縦横サイズ
+			Size = GetCanvasSize( CvsBaseEmt , rotateCnt );
+
+			// 横ガイド線の描画
+			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize , Size.x + SpacerSize , PosY + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+			
+			// 縦ガイド線の描画
+			CvsDrawinglineVertical( CvsViewImagePixels , PosX + SpacerSize , SpacerSize , Size.y + SpacerSize , CvsViewEmt.width , {R:0,G:0,B:0} );
+
+			if( CvsViewMouserPos.ClickNow == true){
+				CvsViewMouserPos.ClickPosX2 = PosX;
+				CvsViewMouserPos.ClickPosY2 = PosY;
+			}
+			if( CvsViewMouserPos.ClickPosX1 != -1 && CvsViewMouserPos.ClickPosX2 != -1 ){
+				CvsDrawinglineHorizontal( CvsViewImagePixels , CvsViewMouserPos.ClickPosX1 + SpacerSize , CvsViewMouserPos.ClickPosX2 + SpacerSize , CvsViewMouserPos.ClickPosY1 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+				CvsDrawinglineHorizontal( CvsViewImagePixels , CvsViewMouserPos.ClickPosX1 + SpacerSize , CvsViewMouserPos.ClickPosX2 + SpacerSize , CvsViewMouserPos.ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+				CvsDrawinglineVertical  ( CvsViewImagePixels , CvsViewMouserPos.ClickPosX1 + SpacerSize , CvsViewMouserPos.ClickPosY1 + SpacerSize , CvsViewMouserPos.ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+				CvsDrawinglineVertical  ( CvsViewImagePixels , CvsViewMouserPos.ClickPosX2 + SpacerSize , CvsViewMouserPos.ClickPosY1 + SpacerSize , CvsViewMouserPos.ClickPosY2 + SpacerSize , CvsViewEmt.width , {R:255,G:0,B:0} );
+			}
+
+			// 変更した内容をキャンバスに書き戻す
+			CvsViewCtx.putImageData(CvsViewImageData, 0, 0);
+
+		}
+
+		// マウス位置取得クラス
+		class MousePosCls {
+
+			constructor( GetCvsEmt ) {
+
+				this.CvsEmt = GetCvsEmt;
+
+				this.PosClear();
+
+				this.CvsEmt.addEventListener('mousemove', e => { this.mousemove(e); } , false); // マウス移動時イベント登録
+				this.CvsEmt.addEventListener('mousedown', e => { this.mousedown(e); } , false); 
+				this.CvsEmt.addEventListener('mouseup'  , e => { this.mouseup  (e); } , false); 
+
+			}
+
+			mousemove(e){
+				
+				var CvsViewPos = this.GetCvsViewPos(e);
+				
+				document.getElementById("PosX").innerHTML = CvsViewPos.x;
+				document.getElementById("PosY").innerHTML = CvsViewPos.y;
+
+				// 画像をコピー
+				ViewImageDraw( CvsBaseEmt , CvsViewEmt , CvsViewCtx , rotateCnt );
+
+				// ガイド線の表示
+				DrawingGuideline( CvsViewPos.x , CvsViewPos.y );
+
+				this.OldPosX = CvsViewPos.x;
+				this.OldPosY = CvsViewPos.y;
+
+			}
+			mousedown(e){
+
+				var CvsViewRect = this.CvsEmt.getBoundingClientRect();
+				
+				var CvsViewPos = this.GetCvsViewPos( e );
+				
+				this.ClickNow = true;
+				this.ClickPosX1 = CvsViewPos.x;
+				this.ClickPosY1 = CvsViewPos.y;
+
+				document.getElementById("MouseClick").innerHTML += 'Click(' + CvsViewPos.x + '/' + CvsViewPos.y + ')';
+
+			}
+			mouseup(e){
+				
+				var CvsViewRect = this.CvsEmt.getBoundingClientRect();
+				
+				var CvsViewPos = this.GetCvsViewPos( e );
+
+				this.ClickNow = false;
+				this.ClickPosX2 = CvsViewPos.x;
+				this.ClickPosY2 = CvsViewPos.y;
+
+				document.getElementById("MouseClick").innerHTML = '';
+
+			}
+
+			GetCvsViewPos(e){
+				//document.getElementById("MouseX").innerHTML = 'aaa';
+
+				// マウス位置取得
+				var MouseX = e.clientX;  //X座標
+				var MouseY = e.clientY;  //Y座標
+
+				// マウス位置表示
+				document.getElementById("MouseX").innerHTML = MouseX;
+				document.getElementById("MouseY").innerHTML = MouseY;
+
+				// 表示画像の位置取得
+				var CvsViewRect = CvsViewEmt.getBoundingClientRect();
+
+				var PosX = Math.floor( MouseX - CvsViewRect.left - SpacerSize - 1 );
+				var PosY = Math.floor( MouseY - CvsViewRect.top  - SpacerSize - 1 );
+				if( PosX < 0 ){
+					PosX = 0;
+				}
+				if( PosX >= CvsViewEmt.width - ( SpacerSize * 2 ) ){
+					PosX =  CvsViewEmt.width - ( SpacerSize * 2 ) - 1 ;
+				}
+				if( PosY < 0 ){
+					PosY = 0;
+				}
+				if( PosY >= CvsViewEmt.height - ( SpacerSize * 2 ) ){
+					PosY =  CvsViewEmt.height - ( SpacerSize * 2 ) - 1 ;
+				}
+
+				return {
+					  x: PosX
+				 	, y: PosY
+				};
+			}
+
+			PosClear(){
+				this.OldPosX = -1;
+				this.OldPosY = -1;
+				this.ClickNow = false;
+				this.ClickPosX1 = -1;
+				this.ClickPosX2 = -1;
+				this.ClickPosY1 = -1;
+				this.ClickPosY2 = -1;
+			}
+
+		}
+
+		CvsViewMouserPos = new MousePosCls( CvsViewEmt );
+		
+		// 画像表示
+		function ViewImage( BlobUrl ) {
+
+			const chara = new Image();
+			chara.src = BlobUrl;  // 画像のURLを指定
+			chara.onload = () => {
+
+				CvsBaseEmt.width = chara.naturalWidth ;
+				CvsBaseEmt.height = chara.naturalHeight ;
+				CvsBaseCtx.drawImage(chara, 0, 0 );
+				
+				rotateCnt = 0;
+
+				// BaseのCanvasからView用Canvasを初期化
+				InitViewCanvas( CvsBaseEmt , CvsViewEmt , CvsViewCtx );
+				
+			};
+			
+		};
+
+		// BaseのCanvasからView用Canvasを初期化
+		function InitViewCanvas( SrcEmt , DstEmt , DstCtx ) {
+			
+			DstEmt.width  = SrcEmt.width  + SpacerSize * 2 ;
+			DstEmt.height = SrcEmt.height + SpacerSize * 2 ;
+
+			// 画像をコピー
+			ViewImageDraw( SrcEmt , DstEmt , DstCtx , rotateCnt );
+
+			// 枠線の描画
+			DrawFrame( DstEmt , DstCtx );
+			
+			document.getElementById("SizeX").innerHTML = SrcEmt.width ;
+			document.getElementById("SizeY").innerHTML = SrcEmt.height;
+
+			CvsViewMouserPos.PosClear();
+
+		}
+		function DrawFrame( DstEmt , DstCtx ) {
+			// 枠線の描画
+			var CvsViewImageData = DstCtx.getImageData(0, 0 , DstEmt.width , DstEmt.height );
+			var CvsViewImagePixels = CvsViewImageData.data;
+			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize - 1            , DstEmt.width - SpacerSize + 1 , SpacerSize - 1             , DstEmt.width , {R:0,G:0,B:0} ); // 上
+			CvsDrawinglineHorizontal( CvsViewImagePixels , SpacerSize - 1            , DstEmt.width - SpacerSize + 1 , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 下
+			CvsDrawinglineVertical  ( CvsViewImagePixels , SpacerSize - 1            , SpacerSize                    , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 左
+			CvsDrawinglineVertical  ( CvsViewImagePixels , DstEmt.width - SpacerSize , SpacerSize                    , DstEmt.height - SpacerSize , DstEmt.width , {R:0,G:0,B:0} ); // 右
+			DstCtx.putImageData(CvsViewImageData, 0, 0);
+		}
+
+		// 貼り付けイベントのリスナセット
+		contenteditable_paste_addevent();
+		function contenteditable_paste_addevent() {
+			// 貼り付けからイメージ取得
+			document.querySelector("[contenteditable]").addEventListener("paste", function (e) {
+				var PasteItems = e.clipboardData.items;
+				for (var Idx = 0; Idx < PasteItems.length; Idx++) {
+					if (PasteItems[Idx].type.indexOf("image") === 0) {
+						var BlobUrl = URL.createObjectURL(PasteItems[Idx].getAsFile());
+
+						// いろいろ弄れてしまうので戻しておく
+						document.getElementById("PasteBoxW").innerHTML = '<span id="PasteBox" contenteditable="true">ここに画像をペースト</span>';
+
+						// 戻したのでリスナ再セット
+						contenteditable_paste_addevent();
+
+						// 画像表示
+						ViewImage( BlobUrl );
+
+						return;
+					}
+				}
+			});
+		}
+		
+		// ローカルファイルからイメージ選択
+		function inputChange() {
+
+			// 画像表示
+			ViewImage( window.URL.createObjectURL( document.getElementById("target").files[0] ) );
+			
+		}
+
+	</script>
+	
+	</body>
+</html>

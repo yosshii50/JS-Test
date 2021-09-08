@@ -1,16 +1,22 @@
 <?php
 
 echo "<li>";
-// echo "aaaaaaaaa" . $a;
+
+if ( isset($l) ) {
+    echo $l;
+    unset($l);
+}
+
 echo '<a href="' . $a .'">' . $n . "</a>";
 echo ' (<a href="php/code.php?a=../' . $a . '">Code</a>';
+
+if ( isset($p) ) {
+	echo '/<a href="php/code.php?a=../' . $p . '">PHP</a>';
+    unset($p);
+}
+
 echo ')';
 
-
-
-// <a href="js-exp/Camera-Test.html">カメラ動作確認用</a>
-
 echo "<br>\n";
-
 
 ?>
