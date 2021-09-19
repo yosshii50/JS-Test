@@ -1,0 +1,323 @@
+<html>
+	<meta http-equiv="content-type" charset="utf-8">
+	<head>
+		<title>キー入力の実験 2021-09-18</title>
+		<link rel="icon" href="/favicon.ico">
+		<meta http-equiv="Expires" content="0">
+		</head>
+	<body>
+
+	<canvas id="CanvasID"></canvas><br>
+	<span id="DebugMsg"></span><br>
+
+	<script language="JavaScript">
+
+		class Ys_KeyScanEventCls {
+
+				constructor( document_body , KeyRepeatTime = 100 ) {
+					//document.getElementById("DebugMsg").innerHTML += "Init";
+					
+					// 初期化
+					this.document_body = document_body;
+					this.KeyRepeatTime = KeyRepeatTime;
+
+					// キーボードの入力状態を記録する配列
+					this.keyStatus = new Array();
+
+					this.document_body.addEventListener('keydown', event => { this.KeyDownStart( event ); }); // キー押下開始イベント追加
+					this.document_body.addEventListener('keyup'  , event => { this.KeyUp       ( event ); }); // キー押下終了イベント追加
+
+					//document.getElementById("DebugMsg").innerHTML += ".";
+				}
+
+				// キー押下開始イベント処理
+				KeyDownStart( event ){
+					//document.getElementById("DebugMsg").innerHTML += " " + event.keyCode + "ON";
+					//document.getElementById("DebugMsg").innerHTML += this.KeyRepeatTime;
+
+					if( this.keyStatus[event.keyCode] != true || this.KeyRepeatTime == 0 ){
+						//document.getElementById("DebugMsg").innerHTML += " " + event;
+						//document.getElementById("DebugMsg").innerHTML += " " + event.keyCode + "ON";
+						//document.getElementById("DebugMsg").innerHTML += " " + this.KeyRepeatTime;
+
+						this.keyStatus[event.keyCode] = true;
+
+						// キー押下開始イベント発火
+						this.document_body.dispatchEvent(new CustomEvent('Ys_KeyScanEventKeyDown', { detail : {KeyboardEvent:event} }));
+
+						if( this.KeyRepeatTime != 0 ){
+							//document.getElementById("DebugMsg").innerHTML += " " + this.KeyRepeatTime;
+							//document.getElementById("DebugMsg").innerHTML += event;
+							//document.getElementById("DebugMsg").innerHTML += "*" + this.keyStatus[event.keyCode];
+							//event => this.KeyDownRepeat( event );
+							//setTimeout( event => this.KeyDownRepeat( event ) , this.KeyRepeatTime );
+							//document.getElementById("DebugMsg").innerHTML += "---" + this.constructor.name;
+							setTimeout( this.KeyDownRepeat , this.KeyRepeatTime , event , this );
+						}
+
+					}
+
+					//document.getElementById("DebugMsg").innerHTML += "E";
+				}
+
+				// キー押下中イベント処理
+				KeyDownRepeat( event , BaseObj ){
+					//document.getElementById("DebugMsg").innerHTML += event;
+					//document.getElementById("DebugMsg").innerHTML += " " + event.keyCode + "R";
+					//document.getElementById("DebugMsg").innerHTML += "+" + event.keyCode;
+					//document.getElementById("DebugMsg").innerHTML += "---" + BaseObj.constructor.name;
+					//document.getElementById("DebugMsg").innerHTML += "+" + this.keyStatus[event.keyCode];
+					//document.getElementById("DebugMsg").innerHTML += "+" + BaseObj.keyStatus[event.keyCode];
+					//document.getElementById("DebugMsg").innerHTML += "/" + BaseObj.KeyRepeatTime;
+					if( BaseObj.keyStatus[event.keyCode] == true ){
+
+						// キー押下中イベント発火
+						//BaseObj.document_body.dispatchEvent(new CustomEvent('Ys_KeyScanEventKeyDownRepeat', event => { detail : event }));
+						BaseObj.document_body.dispatchEvent(new CustomEvent('Ys_KeyScanEventKeyDownRepeat', { detail : {KeyboardEvent:event} }));
+
+						//document.getElementById("DebugMsg").innerHTML += "###";
+						//setTimeout( event => this.KeyDownRepeat( event ) , this.KeyRepeatTime );
+						setTimeout( BaseObj.KeyDownRepeat , BaseObj.KeyRepeatTime , event , BaseObj );
+					}
+				}
+
+				// キー押下終了イベント処理
+				KeyUp( event ){
+					//document.getElementById("DebugMsg").innerHTML += " " + event.keyCode + "OFF";
+					this.keyStatus[event.keyCode] = false;
+
+					// キー押下終了イベント発火
+					this.document_body.dispatchEvent(new CustomEvent('Ys_KeyScanEventKeyUp', { detail : {KeyboardEvent:event} }));
+
+					//document.getElementById("DebugMsg").innerHTML += ".";
+				}
+
+				ScanKey( keyCode ){
+					if( this.keyStatus[keyCode] == true ){
+						return true;
+					}else{
+						return false;
+					}
+				}
+
+		}
+
+		// キー入力
+		//var Ys_KeyScan = {};
+		
+		var CvsViewEmt = document.getElementById("CanvasID");
+		var CvsViewCtx = CvsViewEmt.getContext("2d");
+		
+		// 最初の実行
+		document.addEventListener('DOMContentLoaded', function(){ AutoExec(); } , false )
+		function AutoExec() {
+			document.getElementById("DebugMsg").innerHTML += "AutoExec";
+
+			// キー入力
+			//Ys_KeyScan = new Ys_KeyScanEventCls( document.body , 500 );
+			//new Ys_KeyScanEventCls( document.body , 100 );
+			new Ys_KeyScanEventCls( document.body , 0 );
+
+			// 表示初期化
+			CvsViewEmt.width  = 16 * 32 + 16;
+			CvsViewEmt.height = 16 * 32 + 16;
+			CvsViewEmt.style.backgroundColor = 'rgb(0,0,0)'; // 背景色
+			
+			CvsViewCtx.strokeStyle = 'rgb(0,255,0)';  //線の色
+			CvsViewCtx.lineWidth = 1;
+			CvsViewCtx.beginPath();
+			//CvsViewCtx.strokeRect(8, 8, 32 , 32 );
+			for( var WrkX = 8 ; WrkX < 16 * 32 + 16 ; WrkX += 32 ){
+				CvsViewCtx.moveTo( WrkX , 8 );
+				CvsViewCtx.lineTo( WrkX , 16 * 32 + 8 );
+			}
+			for( var WrkY = 8 ; WrkY < 16 * 32 + 16 ; WrkY += 32 ){
+				CvsViewCtx.moveTo( 8 , WrkY );
+				CvsViewCtx.lineTo( 16 * 32 + 8 , WrkY );
+			}
+			CvsViewCtx.stroke();
+			CvsViewCtx.font = '18px serif';
+
+			document.getElementById("DebugMsg").innerHTML += ".";
+		}
+
+		document.body.addEventListener('Ys_KeyScanEventKeyDown', function(e) {
+			document.getElementById("DebugMsg").innerHTML = "";
+			document.getElementById("DebugMsg").innerHTML += " " + e.detail.KeyboardEvent.keyCode + "ON";
+			//document.getElementById("DebugMsg").innerHTML += ".";
+
+			CvsViewCtx.fillStyle = 'rgb(0,255,0)';
+			var RetPos = GetPos(e.detail.KeyboardEvent.keyCode);
+			CvsViewCtx.fillText( e.detail.KeyboardEvent.keyCode , RetPos.x * 32 + 9 , RetPos.y * 32 + 32);
+
+		});
+		document.body.addEventListener('Ys_KeyScanEventKeyDownRepeat', function(e) {
+			document.getElementById("DebugMsg").innerHTML += "." + e.detail.KeyboardEvent.keyCode;
+		});
+		document.body.addEventListener('Ys_KeyScanEventKeyUp', function(e) {
+			document.getElementById("DebugMsg").innerHTML += " " + e.detail.KeyboardEvent.keyCode + "OFF";
+			
+			CvsViewCtx.fillStyle = "rgb(0, 0, 0)";
+			var RetPos = GetPos(e.detail.KeyboardEvent.keyCode);
+			CvsViewCtx.fillRect( RetPos.x * 32 + 9, RetPos.y * 32 + 16, 30 , 18 );
+
+			//document.getElementById("DebugMsg").innerHTML += "<br>";
+		});
+
+		function GetPos( KeyCode ){
+			return {x:Math.floor(KeyCode / 16),y:KeyCode % 16};
+		}
+
+		// ここから下は旧プログラム
+		//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+		class OnKeyScanCls {
+			
+			constructor( document_body ) {
+				
+				this.document_body = document_body;
+
+				// キーボードの入力状態を記録する配列
+				this.OnkeyStatus = new Array();
+
+				// 移動優先 0:左 1:上 2:右 3:下
+				this.MoveStatus = [ 0 , 0 , 0 , 0 ];
+
+				// 最後の移動
+				this.LastMove = -1;
+
+				document_body.addEventListener( 'keydown' , event => {
+					
+					if( this.OnkeyStatus[event.keyCode] != true ){
+						// まだ押下されたいない場合のみ
+
+						this.OnkeyStatus[event.keyCode] = true;
+
+						this.MoveStatusAdd( this.KeyCode2MoveIdx(event.keyCode) );
+
+						// カスタムイベント
+						document_body.dispatchEvent(new CustomEvent('OnKeyScanKeyDown', { detail : event }));
+					
+						// 現在の移動方向を変更
+						this.DispatchMoveIdx();
+
+					}
+
+				});
+
+				document_body.addEventListener( 'keyup' , event => {
+					this.OnkeyStatus[event.keyCode] = false;
+
+					this.MoveStatusSub( this.KeyCode2MoveIdx(event.keyCode) );
+
+					// カスタムイベント
+					document_body.dispatchEvent(new CustomEvent('OnKeyScanKeyUp', { detail : event }));
+					
+					// 現在の移動方向を変更
+					this.DispatchMoveIdx();
+
+				});
+
+			}
+
+			// 現在の移動方向を変更
+			DispatchMoveIdx() {
+				
+				var NowMove = this.NowMove();
+
+				if( this.LastMove != NowMove ){
+
+					// カスタムイベント
+					this.document_body.dispatchEvent(new CustomEvent('OnKeyScanMove', { detail : NowMove }));
+					
+					this.LastMove = NowMove;
+				}
+
+			}
+
+			NowMove(){
+				var NowMove = -1;
+				if( this.MoveStatus[0] == 1 ){
+					NowMove = 0;
+				}
+				if( this.MoveStatus[1] == 1 ){
+					NowMove = 1;
+				}
+				if( this.MoveStatus[2] == 1 ){
+					NowMove = 2;
+				}
+				if( this.MoveStatus[3] == 1 ){
+					NowMove = 3;
+				}
+				return NowMove;
+			}
+
+			// キーコードからIdx取得 -1:移動キー以外 0:左 1:上 2:右 3:下
+			KeyCode2MoveIdx( KeyCode ){
+				switch( KeyCode ){
+				case 37: // ←
+					return 0;
+				case 38: // ↑
+					return 1;
+				case 39: // →
+					return 2;
+				case 40: // ↓
+					return 3;
+				default:
+					return -1;
+				}
+			}
+
+			// 移動優先に追加
+			MoveStatusAdd( MoveIdx ) {
+				
+				// 移動キー以外ならそのまま終了
+				if( MoveIdx == -1 ){
+					return;
+				}
+				
+				// 追加で押されたキーの順番を保持する
+				for( var Idx = 0 ; Idx < 4 ; Idx++ ){
+					
+					if( this.MoveStatus[Idx] > 0 ){
+						this.MoveStatus[Idx]++;
+					}
+					if( this.MoveStatus[Idx] > 4 ){
+						this.MoveStatus[Idx] = 4;
+					}
+				}
+				
+				// 最後に押されたキーを保持する
+				this.MoveStatus[MoveIdx] = 1;
+
+			}
+
+			// 移動優先から除外
+			MoveStatusSub( MoveIdx ) {
+				
+				// 移動キー以外ならそのまま終了
+				if( MoveIdx == -1 ){
+					return;
+				}
+
+				// 放されたキー以降の順番を詰める
+				for( var Idx = 0; Idx < 4; Idx++) {
+					if( this.MoveStatus[Idx] > this.MoveStatus[MoveIdx] ){
+						this.MoveStatus[Idx]--;
+					}
+					if( this.MoveStatus[Idx] < 0 ){
+						this.MoveStatus[Idx] = 0;
+					}
+				}
+				
+				// 放されたキーの順番を消す
+				this.MoveStatus[MoveIdx] = 0;
+
+			}
+
+		}
+		
+	</script>
+	
+	</body>
+</html>

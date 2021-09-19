@@ -21,6 +21,14 @@
 		rect_ctxW.fillRect(0, 0, document.getElementById("rectangleW").width, document.getElementById("rectangleW").height);
 		//rect_ctxW.beginPath();
 		rect_ctxW.strokeRect(0, 0, 300, 100);
+
+		// 線
+		rect_ctxW.beginPath();
+		rect_ctxW.strokeStyle = "rgb(255, 0, 0)";
+		rect_ctxW.lineWidth = 1;
+		rect_ctxW.moveTo( 0 , 0 );
+		rect_ctxW.lineTo( 300 , 100 );
+		rect_ctxW.stroke();
 		
 		var rect_ctxB = document.getElementById("rectangleB").getContext("2d");
 		//rect_ctxB.beginPath();
