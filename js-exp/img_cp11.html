@@ -31,6 +31,7 @@
 				<td>
 					<button type="button" onclick="img_reedit()">切り出し画像を編集</button><br>
 					<button type="button" onclick="img_ocr()">切り出し画像をOCR</button><br>
+					10ピクセル程度の余白が必要かも？<br>
 					<span id="ocr_str"></span><br>
 				</td>
 			</tr>
@@ -90,7 +91,7 @@
 			};
 			//document.getElementById("codestep").innerHTML += 'B';
 
-			Xhr.open("POST", "https://html.f5.si:85/ocr/cvs_post_ocr.php", true);
+			Xhr.open("POST", "https://home.ajesta.work/ocr/cvs_post_ocr.php", true);
 			Xhr.setRequestHeader("Content-type", "application/json");
 			Xhr.send(JSON.stringify({data: CvsTrimEmt.toDataURL("image/png")}));
 
