@@ -13,7 +13,8 @@
 			← データ取得日時:[<span id="BTC-updated">????</span>]
 			<a href="javascript:GetBTCInfo();">再取得</a>(<span id="GetTime"></span>)
 			<br>
-		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="109" > JPY/USD(<span id="JPY-updated"></span>) <a href="https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY" target="_blank">参照</a><br>
+		<input type="text" id="JPY-rat" onkeyup="TChgJPYUSD();" value="109" > JPY/USD(<span id="JPY-updated"></span>) 
+			<a href="https://info.finance.yahoo.co.jp/fx/detail/?code=USDJPY" target="_blank">参照</a><br>
 		<input type="text" id="BTC-Val" onkeyup="TChgBTC();" > BTC,Bitcoin<br>
 		<input type="text" id="SAT-Val" onkeyup="TChgSat();" > Satoshi,SAT,Sats<br>
 		<input type="text" id="JPY-Val" onkeyup="TChgJpy();" > 円,JPY<br>
@@ -86,7 +87,7 @@
 		function GetFXInfo() {
 
 			var Xhr = new XMLHttpRequest();
-			Xhr.open('GET', 'https://html.f5.si:85/api/fx');
+			Xhr.open('GET', 'https://home.ajesta.work/api/fx');
 			Xhr.onload = () => {
 
 				let ResJson = JSON.parse(Xhr.response);
