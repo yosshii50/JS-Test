@@ -1,0 +1,75 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>CSVビューワ</title>
+</head>
+<body>
+
+    サーバにデータは送っていません、ブラウザ内だけで完結しています。<br>
+    <input type="file" id="File_ID" onchange="File_onchange()" onClick="File_onClick()"><br>
+    <span id="CSV-DATA"></span>
+
+    <script language="JavaScript">
+
+		// 同じファイルの再読み込みに対応
+		function File_onClick() {
+            document.getElementById("File_ID").value = ''; // 前回の選択ファイルをクリア
+        }
+
+		// ファイル選択
+		function File_onchange() {
+
+            let reader = new FileReader();
+            
+            // 正常に完了
+            reader.onload = (event) => {
+                FileDeployment( event.target.result )
+            }
+
+            // ファイル読み込み
+            let file_blob = document.getElementById("File_ID").files[0]; // 選択されたファイル取得
+            reader.readAsText( file_blob , 'shift-jis' ); // SJISで読み込み
+            //reader.readAsText( file_blob ); // UTFで読み込み
+
+		}
+
+        // ファイルの内容展開
+        function FileDeployment( filedata ) {
+
+            // CSVデータを配列に展開
+            let RowDatas = filedata.split("\n"); // １行分に分割
+            let CSVData = []; // 配列データ
+            for(let LineNo=0; LineNo<RowDatas.length; LineNo++) { // 行数分ループ
+
+                let ColDatas = RowDatas[LineNo].split(","); // １項目分に分割
+                let TmpCells = []; // １行分の配列データ
+                ColDatas.forEach(CellData => { // 列数分ループ
+                    TmpCells.push( CellData );
+                });
+                CSVData.push( { No: LineNo , CellData:TmpCells } ); // １行分保持
+
+            }
+
+            // 配列データを表示用に変換
+            let Str = "<table border=\"1\" style=\"border-collapse:collapse\">";
+            CSVData.forEach(LineData => {
+                Str += "<tr>";
+                Str += "<td style=\"white-space: nowrap;\">" + LineData["No"] + "</td>";
+                LineData["CellData"].forEach(CellData => {
+                    Str += "<td style=\"white-space: nowrap;\">";
+                    Str += CellData ;
+                    Str += "</td>";
+                });
+                Str += "</tr>";
+            });
+            Str += "</table>";
+
+            // 表示
+            document.getElementById("CSV-DATA").innerHTML = Str;
+
+        }
+
+	</script>
+
+</body>
+</html>
