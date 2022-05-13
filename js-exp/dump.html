@@ -1,0 +1,62 @@
+<html>
+<meta http-equiv="content-type" charset="utf-8">
+<head>
+<title>DUMP</title>
+</head>
+<body>
+
+    サーバにデータは送っていません、ブラウザ内だけで完結しています。<br>
+    <input type="file" id="File_ID" onchange="File_onchange()" onClick="File_onClick()"><br>
+    <span id="CSV-DATA"></span>
+
+    <script language="JavaScript">
+
+		// 同じファイルの再読み込みに対応
+		function File_onClick() {
+            document.getElementById("File_ID").value = ''; // 前回の選択ファイルをクリア
+        }
+
+		// ファイル選択
+		function File_onchange() {
+
+            let reader = new FileReader();
+            
+            // 正常に完了
+            reader.onload = (event) => {
+                FileDeployment( event.target.result )
+                //FileDeployment( event.target )
+            }
+
+            // ファイル読み込み
+            let file_blob = document.getElementById("File_ID").files[0]; // 選択されたファイル取得
+            reader.readAsArrayBuffer( file_blob ); // バイナリで読み込み
+
+		}
+
+        // ファイルの内容展開
+        function FileDeployment( filedata ) {
+
+            let uint8array = new Uint8Array( filedata );
+            
+            let RowCnt = 0;
+            let ColCnt = 0;
+            let RowDatas = "0000000000000000";
+            for (let bindata of uint8array){
+                RowDatas += ' ' + ('0' + bindata.toString(16).toUpperCase()).substr(-2);
+                ColCnt++;
+                if(ColCnt > 15){
+                    RowCnt++;
+                    ColCnt=0;
+                    RowDatas += '<br>' + ('000000000000000' + RowCnt.toString(16).toUpperCase()).substr(-16);
+                }
+            }
+
+            // 表示
+            document.getElementById("CSV-DATA").innerHTML = RowDatas;
+
+        }
+
+	</script>
+
+</body>
+</html>
