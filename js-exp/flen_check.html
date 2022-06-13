@@ -1,0 +1,200 @@
+
+
+<html>
+    <meta http-equiv="content-type" charset="utf-8">
+    <head>
+    <title>固定長ファイルチェック</title>
+    </head>
+    <body>
+    
+        <style>
+            table th:hover {
+            background-color: #00ffff;
+            }
+            table tr:hover {
+            background-color: #ffff00;
+            }
+            table td:hover {
+            background-color: #00ffff;
+            }
+        </style>
+
+        <input type="file" id="File_ID" onchange="File_onchange()" onClick="File_onClick()"><br>
+        <br>
+        <span id="VIEW-DATA"></span>
+        <br>
+        <textarea id="LayoutStr" rows="10" cols="60" wrap="off"></textarea>レコード長：<input type="text" id="Text1"><br>
+        [桁数,タイプ,タイトル]で入力。<br>
+        (タイプは未使用)<br>
+        
+        <script language="JavaScript">
+
+            function copyToClipBoard() {
+                //alert("a");
+                var content = document.getElementById('RefFileName');
+                //alert("b");
+                content.select();
+                //alert("c");
+                document.execCommand('copy');
+                //alert("Copied!");
+            }
+    
+            // 最初の実行
+            document.addEventListener('DOMContentLoaded', function(){ DOMContentLoaded_Exec(); } , false )
+            function DOMContentLoaded_Exec() {
+                
+                // テキストボックスに上書き
+                let InitLayoutStr = "";
+                InitLayoutStr += "002,X,ID\n";
+                InitLayoutStr += "001,X,FILLER\n";
+                InitLayoutStr += "040,X,TEKIYO\n";
+                document.getElementById("LayoutStr").value = InitLayoutStr;
+                document.getElementById("Text1").value = "256";
+                
+            }
+            
+            // 同じファイルの再読み込みに対応
+            function File_onClick() {
+                document.getElementById("File_ID").value = ''; // 前回の選択ファイルをクリア
+            }
+    
+            // ファイル選択
+            function File_onchange() {
+    
+                let reader = new FileReader();
+                
+                // 正常に完了
+                reader.onload = (event) => {
+                    
+                    // レイアウト情報取得
+                    let LayoutArr = GetLayoutArr();
+                    let RecLEN = Number(document.getElementById("Text1").value);
+
+                    // データファイルから２次元配列にセット
+                    let MatrixData = FileDeployment( LayoutArr , RecLEN , event.target.result );
+
+                    // ２次元配列の内容表示
+                    document.getElementById("VIEW-DATA").innerHTML = SetTableTagStr( LayoutArr , MatrixData ); // テーブル形式に展開
+
+                }
+    
+                // ファイル読み込み
+                let file_blob = document.getElementById("File_ID").files[0]; // 選択されたファイル取得
+                reader.readAsArrayBuffer( file_blob ); // バイナリで読み込み
+    
+            }
+    
+            // レイアウト情報取得
+            function GetLayoutArr() {
+                let LayoutArr = [];
+                let LayoutStr = document.getElementById("LayoutStr").value;
+
+                let LineData = LayoutStr.split(/\n/);
+                for(let idx = 0 , StPos = 0 ; idx < LineData.length; idx++) {
+                    
+                    if( LineData[idx] == ""){
+                        continue;
+                    }
+
+                    let ColData = LineData[idx].split(/,/);
+
+                    let LayoutLine = [];
+                    LayoutLine["Name"] = ColData[2];
+                    LayoutLine["Type"] = ColData[1];
+                    LayoutLine["Len"] = Number(ColData[0]);
+                    LayoutLine["Pos"] = StPos;
+
+                    StPos += LayoutLine["Len"];
+                    LayoutArr[idx] = LayoutLine;
+                }
+
+                return LayoutArr;
+            }
+
+            // ファイルの内容展開
+            function FileDeployment( LayoutArr , RecLEN , filedata ) {
+    
+                let uint8array = new Uint8Array( filedata );
+                
+                let RowCnt = 1;
+                let ColCnt = 0;
+
+                let MatrixData = [];
+                let LineData = [];
+                let ColData = [];
+                //let text_decoder = new TextDecoder("utf-8");
+                let text_decoder = new TextDecoder("shift_jis");
+                for (let bindata of uint8array){
+
+                    // 各カラムの中身
+                    for(let idx = 0; idx < LayoutArr.length; idx++) {
+                        if( LayoutArr[idx]["Pos"] <= ColCnt  && LayoutArr[idx]["Pos"] + LayoutArr[idx]["Len"] >= ColCnt ){
+                            ColData.push(bindata);
+                            break;
+                         }
+                    }
+
+                    // 各カラムの終了
+                    for(let idx = 0; idx < LayoutArr.length; idx++) {
+                        if( LayoutArr[idx]["Pos"] + LayoutArr[idx]["Len"] - 1 == ColCnt ){
+                            LineData.push( text_decoder.decode(Uint8Array.from(ColData).buffer) );
+                            ColData = [];
+                            break;
+                         }
+                    }
+                    
+                    ColCnt++;
+                    if(ColCnt >= RecLEN){
+                        if( ColData.length ){
+                            LineData.push( text_decoder.decode(Uint8Array.from(ColData).buffer) );
+                            ColData = [];
+                        }
+                        RowCnt++;
+                        ColCnt=0;
+                        MatrixData.push( LineData );
+                        LineData = [];
+                    }
+                }
+                if( ColData.length ){
+                    LineData.push( text_decoder.decode(Uint8Array.from(ColData).buffer) );
+                }
+                if( LineData.length ){
+                    MatrixData.push( LineData );
+                }
+
+                return MatrixData;
+            }
+            // テーブル形式に展開
+            function SetTableTagStr( LayoutArr , MatrixData ) {
+    
+                let RowDatas = "";
+                RowDatas += "<table border='1' style='border-collapse:collapse'>";
+                RowDatas += "<tr>";
+                RowDatas += AddTHTag("行");
+                for(let ColNo = 0; ColNo < LayoutArr.length; ColNo++) {
+                    RowDatas += AddTHTag(LayoutArr[ColNo]["Name"]);
+                }
+                RowDatas += "</tr>";
+                for(let RowNo = 0; RowNo < MatrixData.length; RowNo++) {
+                    RowDatas += "<tr>";
+                    RowDatas += AddTDTag(RowNo);
+                    for(let ColNo = 0; ColNo < MatrixData[RowNo].length; ColNo++) {
+                        RowDatas += AddTDTag(MatrixData[RowNo][ColNo]);
+                    }
+                    RowDatas += "</tr>";
+                }
+                RowDatas += "</table>";
+                
+                return RowDatas;
+            }
+            function AddTHTag( ColData ) {
+                return "<th style=\"white-space: nowrap;\">" +  ColData + "</th>";
+            }
+            function AddTDTag( ColData ) {
+                return "<td style=\"white-space: nowrap;\">" +  ColData + "</td>";
+            }
+
+        </script>
+    
+    </body>
+</html>
